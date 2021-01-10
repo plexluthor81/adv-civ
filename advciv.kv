@@ -1,0 +1,50 @@
+<AdvCivWidget>:
+	MapScatter:
+		id: map_scatter
+		Image:
+			id: map
+			source: 'civ_board.png'
+			allow_stretch: True
+			keep_ratio: False
+			size: root.size
+			AstTokenWidget:
+				id: africa_ast
+				pos: (map.size[0]/19 + africa_ast.ast*map.size[0]/68,map.size[1]/100+9*map.size[1]/48.7)
+				size: map.size[0]/68,map.size[1]/48.7
+				Label:
+					pos: africa_ast.pos
+					size: africa_ast.size
+					canvas.before:
+						Color:
+							rgba: tuple([x/255 for x in [186, 96, 41]] + [.8])
+						Rectangle:
+							pos: self.pos
+							size: self.size
+			AstTokenWidget:
+				id: phoenicia_ast
+				pos: (map.size[0]/19 + phoenicia_ast.ast*map.size[0]/68,map.size[1]/100+0*map.size[1]/48.7)
+				size: map.size[0]/68,map.size[1]/48.7
+				Label:
+					pos: phoenicia_ast.pos
+					size: phoenicia_ast.size
+					canvas.before:
+						Color:
+							rgba: tuple([x/255 for x in [155, 10, 180]] + [.8])
+						Rectangle:
+							pos: self.pos
+							size: self.size
+
+			AstTokenWidget:
+				id: egypt_ast
+				pos: (map.size[0]/19 + egypt_ast.ast*map.size[0]/68,map.size[1]/100+1*map.size[1]/48.7)
+				size: map.size[0]/68,map.size[1]/48.7
+				Label:
+					pos: egypt_ast.pos
+					size: egypt_ast.size
+					canvas.before:
+						Color:
+							rgba: tuple([x/255 for x in [212, 198, 137]] + [.8])
+						Rectangle:
+							pos: self.pos
+							size: self.size
+
