@@ -67,7 +67,6 @@ class AstTokenWidget(Label):
         self.parent.parent.bind(size=self.update_size)        
 
     def get_window_pos(self):
-        print('get window pos')
         map_pos = (202 + self.ast*60, 22 + self.track*60)
         return map_to_window(map_pos)
 
