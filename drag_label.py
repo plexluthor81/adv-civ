@@ -108,8 +108,8 @@ class MapScatter(Scatter):
         return super(MapScatter, self).on_touch_down(touch)
 
 class UnitToken(DragBehavior, Label):
-    stock = ListProperty(pos_to_hint(map_locations['Stock']))
     nation_color = ListProperty([0,0,0])
+    text = StringProperty('')
 
     def on_touch_down(self,touch):
         if self.collide_point(*touch.pos):
@@ -124,8 +124,14 @@ class UnitToken(DragBehavior, Label):
 class AstTokenWidget(Label):
     ast = NumericProperty(0)
     track = NumericProperty(0)
-    color = ListProperty([0, 0, 0, 1])
+    color = ListProperty([0, 0, 0])
     target_size = 48
+
+    def __init__(self, ast=0, track=0, color=[0,0,0], **kwargs):
+        super(AstTokenWidget, self).__init__(**kwargs)
+        self.ast = ast
+        self.track = track
+        self.color = color
 
     def refresh_pos(self):
         self.pos_hint['x'] = (208 + self.ast*60)/4058.0
@@ -135,7 +141,6 @@ class AstTokenWidget(Label):
 
     def on_touch_down(self, touch):
         if self.collide_point(*touch.pos):
-            print("AST")
             self.ast += 1
             if self.ast > 15:
                 self.ast = 1
@@ -164,8 +169,7 @@ class Nation:
         for location in map_locations.keys():
             self.units_in_location[location] = 0
 
-        self.ast_token = AstTokenWidget(text=self.name[0].upper(),
-                                        ast=0,
+        self.ast_token = AstTokenWidget(ast=0,
                                         track=self.track,
                                         color=self.color)
         fl.add_widget(self.ast_token)
@@ -191,7 +195,7 @@ class TestApp(App):
         fl.add_widget(UnitToken(size_hint=size_to_hint((80,80)),
                                 pos_hint=pos_to_hint(map_locations['Stock']),
                                 text="Some big long phrase"))
-        africa = Nation('Africa', [186, 96, 41], 9, fl, 1)
+        africa = Nation('Africa', [186, 96, 41], 9, fl, 2)
         return root
 
 TestApp().run()
