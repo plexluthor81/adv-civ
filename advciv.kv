@@ -1,19 +1,67 @@
-<NationSelector@GridLayout>:
-    rows: 9
-    cols: 1
-    pos: (map_scatter.size[0]*19.0/4058.0, map_scatter.size[1]*22.0/2910.0)
-    size: (map_scatter.size[0]*180.0/4058.0, map_scatter.size[1]*600.0/2910.0)
-    Button:
-        text: "Africa"
-        on_pressed: app.active_nation = "Africa"
-    Button:
-        text: "Italy"
-        on_pressed: app.active_nation = "Italy"
-    
 <AstTokenWidget>:
+    size_hint: (root.target_size/4058.0,root.target_size/2910.0)
+    pos_hint: {'x': (208 + self.ast*60)/4058.0, 'y': (28 + self.track*60)/2910.0}
     canvas:
         Color:
             rgba: tuple([x/255 for x in self.color] + [.99])
+        Rectangle:
+            pos: self.pos
+            size: self.size
+
+<NationSelector@GridLayout>:
+    cols: 1
+    rows: 10
+    pos_hint: {'x': 19.0/4058.0, 'y': 22.0/2910.0}
+    size_hint: (180.0/4058.0, 600.0/2910.0)
+    NationButton:
+        text: "Africa"
+        color: (0, 0, 0, .01)
+        background_color: app.rgba_tuple((186, 96, 41), .01)
+    NationButton:
+        text: "Italy"
+        color: (0, 0, 0, .01)
+        background_color: app.rgba_tuple((186, 96, 41), .01)
+    NationButton:
+        text: "Illyria"
+        color: (0, 0, 0, .01)
+        background_color: app.rgba_tuple((186, 96, 41), .01)
+    NationButton:
+        text: "Thrace"
+        color: (0, 0, 0, .01)
+        background_color: app.rgba_tuple((186, 96, 41), .01)
+    NationButton:
+        text: "Crete"
+        color: (0, 0, 0, .01)
+        background_color: app.rgba_tuple((186, 96, 41), .01)
+    NationButton:
+        text: "Asia"
+        color: (0, 0, 0, .01)
+        background_color: app.rgba_tuple((186, 96, 41), .01)
+    NationButton:
+        text: "Assyria"
+        color: (0, 0, 0, .01)
+        background_color: app.rgba_tuple((186, 96, 41), .01)
+    NationButton:
+        text: "Babylon"
+        color: (0, 0, 0, .01)
+        background_color: app.rgba_tuple((186, 96, 41), .01)
+    NationButton:
+        text: "Egypt"
+        color: (0, 0, 0, .01)
+        background_color: app.rgba_tuple((186, 96, 41), .01)
+    NationButton:
+        text: "Phoenecia"
+        color: (0, 0, 0, .01)
+        background_color: app.rgba_tuple((186, 96, 41), .01)
+
+<UnitToken>:
+    # Define the properties for the DragLabel
+    drag_rectangle: self.x, self.y, self.width, self.height
+    drag_timeout: 10000000
+    drag_distance: 0
+    canvas.before:
+        Color:
+            rgba: tuple([x/255 for x in root.nation_color] + [.8])
         Rectangle:
             pos: self.pos
             size: self.size
@@ -44,95 +92,60 @@
 						Rectangle:
 							pos: self.pos
 							size: self.size
-            GridLayout:
-                rows: 10
-                cols: 1
-                pos: (map_scatter.size[0]*19.0/4058.0, map_scatter.size[1]*22.0/2910.0)
-                size: (map_scatter.size[0]*180.0/4058.0, map_scatter.size[1]*600.0/2910.0)
-                NationButton:
-                    text: "Africa"
-                    color: (0, 0, 0, .01)
-                    background_color: app.rgba_tuple((186, 96, 41), .01)
-                NationButton:
-                    text: "Italy"
-                    color: (0, 0, 0, .01)
-                    background_color: app.rgba_tuple((186, 96, 41), .01)
-                NationButton:
-                    text: "Illyria"
-                    color: (0, 0, 0, .01)
-                    background_color: app.rgba_tuple((186, 96, 41), .01)
-                NationButton:
-                    text: "Thrace"
-                    color: (0, 0, 0, .01)
-                    background_color: app.rgba_tuple((186, 96, 41), .01)
-                NationButton:
-                    text: "Crete"
-                    color: (0, 0, 0, .01)
-                    background_color: app.rgba_tuple((186, 96, 41), .01)
-                NationButton:
-                    text: "Asia"
-                    color: (0, 0, 0, .01)
-                    background_color: app.rgba_tuple((186, 96, 41), .01)
-                NationButton:
-                    text: "Assyria"
-                    color: (0, 0, 0, .01)
-                    background_color: app.rgba_tuple((186, 96, 41), .01)
-                NationButton:
-                    text: "Babylon"
-                    color: (0, 0, 0, .01)
-                    background_color: app.rgba_tuple((186, 96, 41), .01)
-                NationButton:
-                    text: "Egypt"
-                    color: (0, 0, 0, .01)
-                    background_color: app.rgba_tuple((186, 96, 41), .01)
-                NationButton:
-                    text: "Phoenecia"
-                    color: (0, 0, 0, .01)
-                    background_color: app.rgba_tuple((186, 96, 41), .01)
-			AstTokenWidget:
-				id: africa_ast
+        FloatLayout:
+            id: fl
+            size: map_scatter.size
+            pos: (0,0)
+            UnitWidget:
+				text: '2'
+				font_size: 15
+				size_hint: (60/4058, 60/2910)
+                pos: (100,100)
+            NationSelector:
+		    AstTokenWidget:
+			    id: africa_ast
                 color: [186, 96, 41]
                 track: 9
-			AstTokenWidget:
-				id: italy_ast
+		    AstTokenWidget:
+			    id: italy_ast
                 color: [252, 0, 0]
                 track: 8
-			AstTokenWidget:
-				id: illyria_ast
+		    AstTokenWidget:
+			    id: illyria_ast
                 color: [245, 239, 7]
                 track: 7
-			AstTokenWidget:
-				id: thrace_ast
+		    AstTokenWidget:
+			    id: thrace_ast
                 color: [67, 177, 30]
                 track: 6
-			AstTokenWidget:
-				id: crete_ast
+		    AstTokenWidget:
+			    id: crete_ast
                 color: [102, 201, 29]
                 track: 5
-			AstTokenWidget:
-				id: asia_ast
+		    AstTokenWidget:
+			    id: asia_ast
                 color: [243, 146, 51]
                 track: 4
-			AstTokenWidget:
-				id: assyria_ast
+		    AstTokenWidget:
+			    id: assyria_ast
                 color: [61, 185, 209]
                 track: 3
-			AstTokenWidget:
-				id: babylon_ast
+		    AstTokenWidget:
+			    id: babylon_ast
                 color: [145, 245, 244]
                 track: 2
-			AstTokenWidget:
-				id: egypt_ast
+		    AstTokenWidget:
+			    id: egypt_ast
                 color: [212, 198, 137]
                 track: 1
-			AstTokenWidget:
-				id: phoenecia_ast
+		    AstTokenWidget:
+			    id: phoenecia_ast
                 color: [155, 10, 180]
                 track: 0
             GridLayout:
                 id: gl
-                size: (map.size[0]*1703.0/4058.0, map.size[1]*821.0/2910.0)
-                pos: (map_scatter.size[0]*1662.0/4058.0, map_scatter.size[1]*3.0/2910.0)
+                size_hint: (1703.0/4058.0, 821.0/2910.0)
+                pos_hint: {'x': 1662.0/4058.0, 'y': 3.0/2910.0}
                 cols: 1
                 row_default_height: self.size[1]/8
                 GridLayout:
@@ -167,7 +180,7 @@
                                     Color: 
                                         rgba: app.rgba_tuple((248, 212, 128), 1)
                                     Rectangle:
-			                            pos: (0, 0)
+		                                pos: (0, 0)
                                         size: sm.size
 
                     

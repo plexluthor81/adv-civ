@@ -11,6 +11,7 @@ from kivy.graphics.vertex_instructions import (Rectangle,
 from kivy.graphics.context_instructions import Color
 from kivy.clock import Clock
 from kivy.uix.screenmanager import Screen, ScreenManager
+from kivy.uix.behaviors import DragBehavior
 
 from math import sqrt
 
@@ -24,7 +25,53 @@ map_locations = {'Great Erg': (680, 965),
                  'Carthage': (1174, 1515),
                  'Hippo Regius': (1021, 1452),
                  'Cirta': (856, 1397),
-                 'Sitifensis': (645, 1359)}
+                 'Sitifensis': (645, 1359),
+                 'Caesariensis': (423, 1288),
+                 'Mauretania': (146, 1258),
+                 'Tingitana': (58, 948),
+                 'Stock': (1768, 535)}
+
+class UnitWidget(DragBehavior, Label):
+    nation_color = ListProperty([0,0,0])
+
+    def on_touch_up(self, touch):
+        if self.collide_point(*touch.pos):
+            print(f'I moved to {self.pos}')
+        return super(DragBehavior, self).on_touch_up(touch)
+
+
+class Nation:
+    num_units = 55
+    name = 'Unnamed'
+    color = [0, 0, 0]
+    track = 0
+    fl = None
+    units_in_location = {}
+    tokens = []
+
+    def __init__(self, name, color, track, fl, num_units=55, **kwargs):
+        self.name = name
+        self.color = color
+        self.track = track
+        self.fl = fl
+        self.num_units = num_units
+        for location in map_locations.keys():
+            self.units_in_location[location] = 0
+
+        for i in range(num_units):
+            token = UnitWidget(nation_color=self.color, 
+                               pos=(map_locations['Stock'][0]/4058.0,
+                                    map_locations['Stock'][1]/2910.0),
+                               size_hint=(60/4058.0, 60/2910.0))
+            self.fl.add_widget(token)
+            self.units_in_location['Stock'] += 1
+            self.tokens.append(token)
+            #token.bind(pos=self.update_locations)
+
+    def update_locations(self, *args):
+        print(f'Should be updating locations for {self.name}')
+
+        
 
 def map_to_window(map_pos):
     app = App.get_running_app()
@@ -63,41 +110,24 @@ class AstTokenWidget(Label):
     color = ListProperty([0, 0, 0, 1])
     target_size = 48
 
-    def __init__(self, **kwargs):
-        super(AstTokenWidget, self).__init__(**kwargs)
-        Clock.schedule_once(self.init_bindings, 0)
+    def refresh_pos(self):
+        self.pos_hint['x'] = (208 + self.ast*60)/4058.0
+        self.pos_hint['y'] = (28 + self.track*60)/2910.0        
+        self.parent._trigger_layout()
 
-    def init_bindings(self, *args):
-        self.parent.parent.bind(size=self.update_size)        
-
-    def get_window_pos(self):
-        map_pos = (208 + self.ast*60, 28 + self.track*60)
-        return map_to_window(map_pos)
-
-    def get_window_size(self):
-        app = App.get_running_app()
-        if not app.root:
-            return (self.target_size,self.target_size)
-        map_widget = app.root.ids['map']
-        return (self.target_size/4058.0*map_widget.size[0], self.target_size/2910.0*map_widget.size[1])
-    
     def on_touch_down(self, touch):
         if self.collide_point(*touch.pos):
+            print("AST")
             self.ast += 1
             if self.ast > 15:
                 self.ast = 1
 
     def on_track(self, instance, pos):
-        self.pos = self.get_window_pos()
+        self.refresh_pos()
 
     def on_ast(self, instance, pos):
-        self.pos = self.get_window_pos()    
+        self.refresh_pos()
 
-    def update_size(self, instance, size):
-        app = App.get_running_app()
-        map_widget = app.root.ids['map']
-        self.size = (self.target_size/4058.0*map_widget.size[0], self.target_size/2910.0*map_widget.size[1])
-        self.pos = self.get_window_pos()
     
 class NationButton(Button):
     def on_press(self):
@@ -189,7 +219,10 @@ class AdvCivApp(App):
         return tuple([x/255 for x in rgb] + [a])
 
     def build(self):
-        return AdvCivWidget()
+        acw = AdvCivWidget()
+        fl = acw.ids['fl']
+        africa = Nation('Africa', [186, 96, 41], 9, fl, 1)
+        return acw
 
 if __name__ == "__main__":
     civmap = AdvCivApp()
