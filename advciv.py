@@ -81,6 +81,9 @@ BoxLayout:
                         name: "Civ Card Credits"
                         FloatLayout:
                             size: sm.size
+                            Image:
+                                size_hint: 1,1
+                                source: 'civ_credits.png'
                             Button:
                                 size_hint: .3, .3
                                 pos_hint: {'center_x': .5, 'center_y': .5}
@@ -106,12 +109,12 @@ class SnapMap():
                      'Mauretania': {'pop_limit': 1, 'nations': None, 'Prime': (146, 1258), 'Alt': []},
                      'Tingitana': {'pop_limit': 1, 'nations': None, 'Prime': (58, 948), 'Alt': []},
                      'Stock': {'pop_limit': 55, 'nations': None, 'Prime': (1768, 535), 'Alt': []},
-                     'CityStock': {'pop_limit': 55, 'nations': None, 'Prime': (1768, 435), 'Alt': []},
-                     'BoatStock': {'pop_limit': 55, 'nations': None, 'Prime': (1768, 335), 'Alt': []},
+                     'CityStock': {'pop_limit': 9, 'nations': None, 'Prime': (1768, 435), 'Alt': []},
+                     'BoatStock': {'pop_limit': 4, 'nations': None, 'Prime': (1768, 335), 'Alt': []},
                      'Treasury': {'pop_limit': 55, 'nations': None, 'Prime': (1768, 235), 'Alt': []},
                      'HiddenStock': {'pop_limit': 55, 'nations': None, 'Prime': (1768, -535), 'Alt': []},
-                     'HiddenCityStock': {'pop_limit': 55, 'nations': None, 'Prime': (1768, -435), 'Alt': []},
-                     'HiddenBoatStock': {'pop_limit': 55, 'nations': None, 'Prime': (1768, -335), 'Alt': []},
+                     'HiddenCityStock': {'pop_limit': 9, 'nations': None, 'Prime': (1768, -435), 'Alt': []},
+                     'HiddenBoatStock': {'pop_limit': 4, 'nations': None, 'Prime': (1768, -335), 'Alt': []},
                      'HiddenTreasury': {'pop_limit': 55, 'nations': None, 'Prime': (1768, -235), 'Alt': []} }
 
     def get_snap_pos(self, window_pos, type='Token'):
