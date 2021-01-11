@@ -64,6 +64,15 @@ BoxLayout:
                         name: 'Stock and Treasury'
                         FloatLayout:
                             Label:
+                                text: "Units"
+                                color: (0,0,0,1)
+                                size_hint: .2,.2
+                                canvas.before:
+                                    Color:
+                                        rgba: (0,0,0,1)
+                                    Line:
+                                        rectangle: (self.x, self.y, self.width, self.height)
+                            Label:
                                 color: (0, 0, 0, 1)
                                 text: app.active_nation
                                 canvas.before:
