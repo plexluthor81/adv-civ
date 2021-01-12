@@ -31,7 +31,7 @@ class Territory:
         self.boat_nations = []
 
     def __repr__(self):
-        return f"Territory Object {{name: {self.name}, len(tokens): {len(self.tokens)}, unit_spots: {self.unit_spots}}}"
+        return f"Territory Object {{name: {self.name}, len(tokens): {len(self.tokens)}, tokens: {self.tokens}, unit_spots: {self.unit_spots}}}"
 
     def add_token(self, token):
         if token not in self.tokens:
@@ -52,7 +52,7 @@ class Territory:
         elif isinstance(token, CityToken):
             self.has_city_token = False
             return # TODO: place tokens in that prime spot if this is conflict
-        if len([n for n in nation_list if n==token.nation]) == 0:
+        if nation_list and (len([n for n in nation_list if n==token.nation]) == 0):
             # If that was the last one for that nation, we have more to do
             nation_index = nation_list.index(token.nation)
             if not (nation_index == len(nation_list)-1):
@@ -73,15 +73,18 @@ class Territory:
                 return False, (0, 0)
             if (not self.unit_nations) or (self.unit_nations == [token.nation]):
                 # Accept the city token, and send units back to stock
-                for t in self.tokens:
-                    if isinstance(t, UnitToken):
-                        if t.nation == token.nation:
-                            t.goto_territory('UnitStock')
-                        else:
-                            raise Exception(f"Unexpected unit token from {t.nation} in {self.name}")
+                print("\n\n\n\nSending units back home to place City")
+                print(len(self.tokens))
+                tokens_to_send_home = [t for t in self.tokens if isinstance(t, UnitToken) and t.nation==token.nation]
+                for t in tokens_to_send_home:
+                    t.goto_territory('UnitStock')
+                if len([t for t in self.tokens if isinstance(t, UnitToken)]) > 0:
+                    raise Exception(f"Unexpected unit token from {self.tokens[0].nation} in {self.name}")
+                print(self)
                 self.unit_nations = []
                 self.add_token(token)
                 self.has_city_token = True
+                print(self)
                 return True, self.unit_spots[0]
         if isinstance(token, UnitToken):
             if self.has_city_token:
@@ -90,6 +93,8 @@ class Territory:
                         raise Exception(f"Trying to add too many nations' units in {self.name}. Max={len(self.unit_spots)} (city using 1)")
                     self.unit_nations.append(token.nation)
                 self.add_token(token)
+                print(self)
+                print(token)
                 return True, self.unit_spots[self.unit_nations.index(token.nation)+1]
             else:
                 if token.nation not in self.unit_nations:
@@ -97,6 +102,7 @@ class Territory:
                         raise Exception(f"Trying to add too many nations' units in {self.name}. Max={len(self.unit_spots)}")
                     self.unit_nations.append(token.nation)
                 self.add_token(token)
+                print(self)
                 return True, self.unit_spots[self.unit_nations.index(token.nation)]
         if isinstance(token, BoatToken):
             if len(self.boat_spots)==0:
@@ -328,7 +334,7 @@ class SnapMap:
             territory = [t for t in self.territories if t.name == territory][0]
         if not isinstance(territory, Territory):
             raise Exception(f"territory must be a Territory object, the a Territory object's name. {territory}")
-        print(f"Placing {token} from {token.nation.name} in {territory.name}")
+        # print(f"Placing {token} from {token.nation.name} in {territory.name}")
         if isinstance(token, (UnitToken, CityToken, BoatToken)):
             b, map_pos = territory.try_adding_token(token)
             if not b:
@@ -336,10 +342,13 @@ class SnapMap:
                     raise Exception(f"Can't add token to its first territory! {token} of {token.nation} to {territory}")
                 b, map_pos = token.territory.try_adding_token(token)
                 if not b:
+                    print(token)
+                    print(token.territory)
                     raise Exception(f"Can't add token to its current territory! {token} of {token.nation} to {token.territory.name}")
                 territory = token.territory
             else:
                 if token.territory:
+                    print(f"About to remove {token} from {token.territory}")
                     token.territory.remove_token(token)
             # At this point, territory and map_pos are both definitely valid
             token.territory = territory
@@ -491,6 +500,16 @@ BoxLayout:
 class NationButton(Button):
     def on_press(self):
         app = App.get_running_app()
+        if app.active_nation == self.text:
+            print(len(app.nations[0].tokens))
+            u = app.nations[0].tokens[0]
+            print(u)
+            for t in snap_map.territories:
+                if t.city_site:
+                    u = next(unit for unit in app.nations[0].tokens if
+                         isinstance(unit, UnitToken) and unit.territory.name == 'UnitStock')
+                    u.goto_territory(t)
+            app.nations[0].label_tokens()
         old_an = app.active_nation
         app.active_nation = self.text
         for n in app.nations:
@@ -546,13 +565,13 @@ class Token(DragBehavior, Label):
     
     def on_touch_down(self, touch):
         if self.collide_point(*touch.pos) and self.nation and (self.nation.name == self.active_nation):
+            print(self)
             self.pos_hint = {}
             self.moving = True
             self.nation.label_tokens()
         return super(Token, self).on_touch_down(touch)
 
     def goto_territory(self, territory):
-        print(f"{self} goto_territory {territory}")
         snap_map.place_token_in_territory(self, territory)
 
     def hide(self):
@@ -569,7 +588,6 @@ class Token(DragBehavior, Label):
             self.goto_territory('HiddenTreasury')
 
     def show(self):
-        print(f"show() for {self} of {self.nation.name}")
         if not self.hidden:
             return
         self.hidden = False
@@ -584,17 +602,31 @@ class Token(DragBehavior, Label):
 
 
 class UnitToken(Token):
+    def __str__(self):
+        if self.nation and self.territory:
+            return f"UnitToken of {self.nation.name} in {self.territory.name} Moving: {self.moving}"
+        else:
+            return f"Unassigned UnitToken"
+
     def on_touch_up(self, touch):
-        if self.collide_point(*touch.pos):
+        if self.collide_point(*touch.pos) and self.moving:
+            self.moving = False
             snap_map.place_token_at_pos(self, touch.pos)
             self.nation.label_tokens()
-        return super(UnitToken, self).on_touch_up(touch)
+        super(UnitToken, self).on_touch_up(touch)
+        return True
 
 
 class CityToken(Token):
+    def __str__(self):
+        if self.nation and self.territory:
+            return f"CityToken of {self.nation.name} in {self.territory.name} Moving: {self.moving}"
+        else:
+            return f"Unassigned UnitToken"
+
     def on_touch_up(self, touch):
-        if self.collide_point(*touch.pos):
-            print(f"{self} from {self.territory} getting placed at {touch.pos}")
+        if self.collide_point(*touch.pos) and self.moving:
+            self.moving = False
             snap_map.place_token_at_pos(self, touch.pos)
             self.nation.label_tokens()
         return super(CityToken, self).on_touch_up(touch)
@@ -602,7 +634,8 @@ class CityToken(Token):
 
 class BoatToken(Token):
     def on_touch_up(self, touch):
-        if self.collide_point(*touch.pos):
+        if self.collide_point(*touch.pos) and self.moving:
+            self.moving = False
             print(f'Released {self} at {touch.pos}')
             snap_map.place_token_at_pos(self, touch.pos)
             self.nation.label_tokens()
@@ -611,7 +644,8 @@ class BoatToken(Token):
 
 class Spotter(Token):
     def on_touch_up(self, touch):
-        if self.collide_point(*touch.pos):
+        if self.collide_point(*touch.pos) and self.moving:
+            self.moving = False
             wp = snap_map.window_to_map(self.pos)
             x = round(wp[0])
             y = round(wp[1])
@@ -690,31 +724,20 @@ class Nation:
         for i in range(num_units):
             token = UnitToken(nation=self, hidden=True, territory='HiddenUnitStock',
                               size_hint=snap_map.size_to_hint((60, 60)))
-            print(token)
-            print(token.territory)
-            print(token.territory.name)
             self.fl.add_widget(token)
             self.units_in_location['HiddenUnitStock'] = self.units_in_location['HiddenUnitStock'] + 1
             self.tokens.append(token)
 
-        for i in range(1):
+        for i in range(9):
             city = CityToken(nation=self, hidden=True, territory='HiddenCityStock',
                              size_hint=snap_map.size_to_hint((60, 60)))
-            print(city)
-            print(city.territory)
-            print(city.territory.name)
-
             self.fl.add_widget(city)
             self.units_in_location['HiddenCityStock'] += 1
             self.tokens.append(city)
         
-        for i in range(1):
+        for i in range(4):
             boat = BoatToken(nation=self, hidden=True, territory='HiddenBoatStock',
                              size_hint=snap_map.size_to_hint((93, 60)))
-            print(boat)
-            print(boat.territory)
-            print(boat.territory.name)
-
             self.fl.add_widget(boat)
             self.units_in_location['HiddenBoatStock'] += 1
             self.tokens.append(boat)
@@ -746,8 +769,6 @@ class Nation:
                 d = boats_in_location
             if isinstance(token, CityToken):
                 d = cities_in_location
-            if token.territory in d.keys():
-                d[token.territory] += 1
             if d[token.territory] > 1:
                 token.text = str(d[token.territory])
             else:
@@ -767,7 +788,6 @@ class Nation:
         if active_nation == self.name: 
             print(f'Showing tokens in {self.name}, active_nation={active_nation}')           
             for token in self.tokens:
-                print(token)
                 if token.territory.name in ['HiddenUnitStock', 'HiddenCityStock', 'HiddenBoatStock', 'HiddenTreasury']:
                     token.show()
         else:
@@ -809,7 +829,7 @@ class TestApp(App):
         fl = root.ids['fl']
         global snap_map
         snap_map = SnapMap(root.ids['ms'], map_type='advciv')
-        self.nations.append(Nation('Africa', [186, 96, 41], 9, fl, 'africa_token_icon3.png', 5))
+        self.nations.append(Nation('Africa', [186, 96, 41], 9, fl, 'africa_token_icon3.png', 75))
         #self.nations.append(Nation('Italy', [252, 0, 0], 8, fl, 'italy_token_icon.png', 55))
         return root
 
