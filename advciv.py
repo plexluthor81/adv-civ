@@ -73,18 +73,14 @@ class Territory:
                 return False, (0, 0)
             if (not self.unit_nations) or (self.unit_nations == [token.nation]):
                 # Accept the city token, and send units back to stock
-                print("\n\n\n\nSending units back home to place City")
-                print(len(self.tokens))
                 tokens_to_send_home = [t for t in self.tokens if isinstance(t, UnitToken) and t.nation==token.nation]
                 for t in tokens_to_send_home:
                     t.goto_territory('UnitStock')
                 if len([t for t in self.tokens if isinstance(t, UnitToken)]) > 0:
                     raise Exception(f"Unexpected unit token from {self.tokens[0].nation} in {self.name}")
-                print(self)
                 self.unit_nations = []
                 self.add_token(token)
                 self.has_city_token = True
-                print(self)
                 return True, self.unit_spots[0]
         if isinstance(token, UnitToken):
             if self.has_city_token:
@@ -93,8 +89,6 @@ class Territory:
                         raise Exception(f"Trying to add too many nations' units in {self.name}. Max={len(self.unit_spots)} (city using 1)")
                     self.unit_nations.append(token.nation)
                 self.add_token(token)
-                print(self)
-                print(token)
                 return True, self.unit_spots[self.unit_nations.index(token.nation)+1]
             else:
                 if token.nation not in self.unit_nations:
@@ -102,7 +96,6 @@ class Territory:
                         raise Exception(f"Trying to add too many nations' units in {self.name}. Max={len(self.unit_spots)}")
                     self.unit_nations.append(token.nation)
                 self.add_token(token)
-                print(self)
                 return True, self.unit_spots[self.unit_nations.index(token.nation)]
         if isinstance(token, BoatToken):
             if len(self.boat_spots)==0:
@@ -497,17 +490,21 @@ BoxLayout:
 class NationButton(Button):
     def on_press(self):
         app = App.get_running_app()
-        # Here's a useful snippet for checking the map data:
-        if True and (app.active_nation == self.text):
+        # Here's a useful snippet for checking the map data by double-clicking a nation button:
+        if False and (app.active_nation == self.text):
             print(len(app.nations[0].tokens))
             u = app.nations[0].tokens[0]
             for t in snap_map.territories:
-                if t.pop_limit==1: # This is the relevant test condition
+                # if t.city_site:
+                # if (whatever you want to check):
+                if t.pop_limit == 1: # This is the relevant test condition
                     u = next(unit for unit in app.nations[0].tokens if
                          isinstance(unit, UnitToken) and unit.territory.name == 'UnitStock')
                     u.goto_territory(t)
             app.nations[0].label_tokens()
         # It will stick a unit token in whatever property you test for.
+
+        # This is the real behavior for the button:
         old_an = app.active_nation
         app.active_nation = self.text
         for n in app.nations:
@@ -784,12 +781,10 @@ class Nation:
     def show_or_hide_stock(self):
         active_nation = App.get_running_app().active_nation
         if active_nation == self.name: 
-            print(f'Showing tokens in {self.name}, active_nation={active_nation}')           
             for token in self.tokens:
                 if token.territory.name in ['HiddenUnitStock', 'HiddenCityStock', 'HiddenBoatStock', 'HiddenTreasury']:
                     token.show()
         else:
-            print(f'Hiding tokens in {self.name}, active_nation={active_nation}')
             for token in self.tokens:
                 if token.territory.name in ['UnitStock', 'CityStock', 'BoatStock', 'Treasury']:
                     token.hide()
@@ -827,8 +822,8 @@ class TestApp(App):
         fl = root.ids['fl']
         global snap_map
         snap_map = SnapMap(root.ids['ms'], map_type='advciv')
-        self.nations.append(Nation('Africa', [186, 96, 41], 9, fl, 'africa_token_icon3.png', 75))
-        #self.nations.append(Nation('Italy', [252, 0, 0], 8, fl, 'italy_token_icon.png', 55))
+        self.nations.append(Nation('Africa', [186, 96, 41], 9, fl, 'africa_token_icon3.png', 55))
+        self.nations.append(Nation('Italy', [252, 0, 0], 8, fl, 'italy_token_icon.png', 55))
         return root
 
 TestApp().run()
