@@ -143,14 +143,14 @@ advciv_territory_list = [
     {'name': 'Byzantium', 'pop_limit': 3, 'unit_spots': [(2260, 2183), (2324, 2183), (2260, 2119)], 'city_site': True},
     {'name': 'Caesariensis', 'pop_limit': 1, 'unit_spots': [(423, 1288), (487, 1288), (423, 1224)]},
     {'name': 'Cappadocia', 'pop_limit': 3, 'unit_spots': [(3151, 2349), (3215, 2349), (3151, 2285)]},
-    {'name': 'Capua', 'pop_limit': 1, 'unit_spots': [(1345, 1938), (1409, 1938), (1345, 1874)]},
-    {'name': 'Carthage', 'pop_limit': 1, 'unit_spots': [(1174, 1515), (1238, 1515), (1174, 1451)], 'city_site': True},
+    {'name': 'Capua', 'pop_limit': 1, 'unit_spots': [(1345, 1938), (1409, 1938), (1345, 1874)], 'city_site': True},
+    {'name': 'Carthage', 'pop_limit': 3, 'unit_spots': [(1174, 1515), (1238, 1515), (1174, 1451)], 'city_site': True},
     {'name': 'Caucasus', 'pop_limit': 2, 'unit_spots': [(2963, 2755), (3027, 2755), (2963, 2691)], 'starting_nation': 'Asia'},
     {'name': 'Celtiberi', 'pop_limit': 1, 'unit_spots': [(281, 1824), (345, 1824), (281, 1760)]},
     {'name': 'Chalcis', 'pop_limit': 2, 'unit_spots': [(2070, 1884), (2134, 1884), (2070, 1820)], 'city_site': True},
     {'name': 'Cilicia', 'pop_limit': 2, 'unit_spots': [(2752, 1955), (2816, 1955), (2752, 1891)]},
     {'name': 'Cirenaica', 'pop_limit': 1, 'unit_spots': [(1812, 1052), (1876, 1052), (1812, 988)]},
-    {'name': 'Cirta', 'pop_limit': 1, 'unit_spots': [(856, 1397), (920, 1397), (856, 1333)], 'city_site': True},
+    {'name': 'Cirta', 'pop_limit': 2, 'unit_spots': [(856, 1397), (920, 1397), (856, 1333)], 'city_site': True},
     {'name': 'Cisalpine Gaul', 'pop_limit': 2, 'unit_spots': [(1030, 2241), (1094, 2241), (1030, 2177)]},
     {'name': 'Constanta', 'pop_limit': 2, 'unit_spots': [(2237, 2495), (2301, 2495), (2237, 2431)], 'city_site': True},
     {'name': 'Corinth', 'pop_limit': 2, 'unit_spots': [(1947, 1767), (2011, 1767), (1947, 1703)], 'city_site': True},
@@ -166,6 +166,7 @@ advciv_territory_list = [
     {'name': 'Eastern Desert', 'pop_limit': 1, 'unit_spots': [(3006, 1221), (3070, 1221), (3006, 1157)]},
     {'name': 'Eastern Gaetulia', 'pop_limit': 1, 'unit_spots': [(2214, 976), (2278, 976), (2214, 912)], 'starting_nation': 'Egypt'},
     {'name': 'Edetania', 'pop_limit': 1, 'unit_spots': [(475, 1842), (539, 1842), (475, 1778)]},
+    {'name': 'Epirus', 'pop_limit': 1, 'unit_spots': [(1821, 1925),(1885, 1925),(1821, 1861)]},
     {'name': 'Eretria', 'pop_limit': 1, 'unit_spots': [(2143, 1838), (2207, 1838), (2143, 1774)], 'city_site': True},
     {'name': 'Gades', 'pop_limit': 2, 'unit_spots': [(183, 1556), (247, 1556), (183, 1492)], 'city_site': True, 'starting_nation': 'Italy'},
     {'name': 'Galatia', 'pop_limit': 2, 'unit_spots': [(2530, 2242), (2594, 2242), (2530, 2178)]},
@@ -180,7 +181,7 @@ advciv_territory_list = [
     {'name': 'Gordium', 'pop_limit': 2, 'unit_spots': [(2601, 2094), (2665, 2094), (2601, 2030)], 'city_site': True},
     {'name': 'Great Erg', 'pop_limit': 1, 'unit_spots': [(680, 965), (744, 965), (680, 901)], 'starting_nation': 'Africa'},
     {'name': 'Helvetii', 'pop_limit': 1, 'unit_spots': [(881, 2356), (945, 2356), (881, 2292)]},
-    {'name': 'Hippo Regius', 'pop_limit': 1, 'unit_spots': [(1021, 1452), (1021, 1516), (1021, 1388)]},
+    {'name': 'Hippo Regius', 'pop_limit': 2, 'unit_spots': [(1021, 1452), (1021, 1516), (1021, 1388)]},
     {'name': 'Illyria', 'pop_limit': 2, 'unit_spots': [(1449, 2233), (1513, 2233), (1449, 2169)]},
     {'name': 'Ionia', 'pop_limit': 3, 'unit_spots': [(2487, 1965), (2551, 1965), (2487, 1901)]},
     {'name': 'Ithaca', 'pop_limit': 1, 'unit_spots': [(1759, 1868), (1823, 1868), (1759, 1804)], 'city_site': True},
@@ -191,7 +192,7 @@ advciv_territory_list = [
     {'name': 'Lemnos', 'pop_limit': 1, 'unit_spots': [(2136, 2027), (2200, 2027), (2136, 1963)]},
     {'name': 'Leptis Magna', 'pop_limit': 1, 'unit_spots': [(1541, 1114), (1605, 1114), (1541, 1050)], 'city_site': True},
     {'name': 'Lesbos', 'pop_limit': 1, 'unit_spots': [(2225, 1929), (2289, 1929), (2225, 1865)]},
-    {'name': 'Libya', 'pop_limit': 1, 'unit_spots': [(1256, 1137), (1256, 1073), (1320, 1073)]},
+    {'name': 'Libya', 'pop_limit': 2, 'unit_spots': [(1256, 1137), (1256, 1073), (1320, 1073)]},
     {'name': 'Lilybaeum', 'pop_limit': 2, 'unit_spots': [(1342, 1611), (1406, 1611), (1342, 1547)], 'city_site': True},
     {'name': 'Lucani', 'pop_limit': 2, 'unit_spots': [(1515, 1832), (1579, 1832), (1515, 1768)]},
     {'name': 'Lusitania', 'pop_limit': 1, 'unit_spots': [(94, 1741), (158, 1741), (94, 1677)], 'starting_nation': 'Italy'},
@@ -202,7 +203,7 @@ advciv_territory_list = [
     {'name': 'Mari', 'pop_limit': 3, 'unit_spots': [(3397, 1725), (3461, 1725), (3397, 1661)]},
     {'name': 'Marmarica', 'pop_limit': 2, 'unit_spots': [(2354, 1265), (2418, 1265), (2354, 1201)]},
     {'name': 'Massilia', 'pop_limit': 3, 'unit_spots': [(746, 2108), (810, 2108), (746, 2044)], 'city_site': True},
-    {'name': 'Mauretania', 'pop_limit': 1, 'unit_spots': [(146, 1258), (210, 1258), (146, 1194)]},
+    {'name': 'Mauretania', 'pop_limit': 2, 'unit_spots': [(146, 1258), (210, 1258), (146, 1194)]},
     {'name': 'Memphis', 'pop_limit': 3, 'unit_spots': [(2848, 1267), (2912, 1267), (2848, 1203)], 'city_site': True},
     {'name': 'Mesopotamia', 'pop_limit': 3, 'unit_spots': [(3571, 2056), (3635, 2056), (3571, 1992)]},
     {'name': 'Miletus', 'pop_limit': 1, 'unit_spots': [(2430, 1833), (2494, 1833), (2430, 1769)], 'city_site': True},
@@ -215,7 +216,7 @@ advciv_territory_list = [
     {'name': 'Nisibis', 'pop_limit': 2, 'unit_spots': [(3472, 1932), (3536, 1932), (3472, 1868)], 'city_site': True},
     {'name': 'Noricum', 'pop_limit': 1, 'unit_spots': [(1031, 2390), (1095, 2390), (1031, 2326)]},
     {'name': 'Nubia', 'pop_limit': 2, 'unit_spots': [(3149, 1106), (3213, 1106), (3149, 1042)]},
-    {'name': 'Numidia', 'pop_limit': 1, 'unit_spots': [(1018, 1195), (1082, 1195), (1018, 1131)]},
+    {'name': 'Numidia', 'pop_limit': 2, 'unit_spots': [(1018, 1195), (1082, 1195), (1018, 1131)]},
     {'name': 'Oblia', 'pop_limit': 1, 'unit_spots': [(1001, 1861), (1065, 1861), (1001, 1797)], 'city_site': True},
     {'name': 'Odessos', 'pop_limit': 4, 'unit_spots': [(2137, 2321), (2201, 2321), (2137, 2257)], 'city_site': True},
     {'name': 'Pannonia', 'pop_limit': 4, 'unit_spots': [(1318, 2478), (1382, 2478), (1318, 2414)]},
@@ -241,16 +242,16 @@ advciv_territory_list = [
     {'name': 'Sindica', 'pop_limit': 1, 'unit_spots': [(2761, 2765), (2825, 2765), (2761, 2701)], 'starting_nation': 'Asia'},
     {'name': 'Sitifensis', 'pop_limit': 1, 'unit_spots': [(645, 1359), (709, 1359), (645, 1295)]},
     {'name': 'Siwa Oasis', 'pop_limit': 2, 'unit_spots': [(2634, 1226), (2698, 1226), (2634, 1162)]},
-    {'name': 'Sparta', 'pop_limit': 1, 'unit_spots': [(1986, 1677), (2050, 1677), (1986, 1613)]},
+    {'name': 'Sparta', 'pop_limit': 1, 'unit_spots': [(1986, 1677), (2050, 1677), (1986, 1613)], 'city_site': True},
     {'name': 'Sumeria', 'pop_limit': 2, 'unit_spots': [(3963, 1745), (4027, 1745), (3963, 1681)]},
     {'name': 'Susa', 'pop_limit': 3, 'unit_spots': [(3960, 2118), (4024, 2118), (3960, 2054)], 'city_site': True, 'starting_nation': 'Babylon'},
     {'name': 'Swenett', 'pop_limit': 3, 'unit_spots': [(3093, 918), (3157, 918), (3093, 854)], 'city_site': True, 'starting_nation': 'Egypt'},
     {'name': 'Syracuse', 'pop_limit': 1, 'unit_spots': [(1487, 1568), (1551, 1568), (1487, 1504)], 'city_site': True},
     {'name': 'Tanis', 'pop_limit': 3, 'unit_spots': [(2876, 1408), (2940, 1408), (2876, 1344)], 'city_site': True},
-    {'name': 'Tarrentum', 'pop_limit': 1, 'unit_spots': [(1610, 1925), (1674, 1925), (1610, 1861)]},
+    {'name': 'Tarrentum', 'pop_limit': 1, 'unit_spots': [(1610, 1925), (1674, 1925), (1610, 1861)], 'city_site': True},
     {'name': 'Taurica', 'pop_limit': 2, 'unit_spots': [(2518, 2675), (2582, 2675), (2518, 2611)]},
     {'name': 'Teutoburg', 'pop_limit': 3, 'unit_spots': [(822, 2813), (886, 2813), (822, 2749)]},
-    {'name': 'Thapsos', 'pop_limit': 1, 'unit_spots': [(1193, 1340), (1257, 1340), (1193, 1276)], 'city_site': True},
+    {'name': 'Thapsos', 'pop_limit': 3, 'unit_spots': [(1193, 1340), (1257, 1340), (1193, 1276)], 'city_site': True},
     {'name': 'Thebes', 'pop_limit': 3, 'unit_spots': [(3219, 928), (3283, 928), (3219, 864)], 'city_site': True, 'starting_nation': 'Egypt'},
     {'name': 'Thessalonica', 'pop_limit': 1, 'unit_spots': [(2022, 2013), (2086, 2013), (2022, 1949)], 'city_site': True},
     {'name': 'Thessaly', 'pop_limit': 2, 'unit_spots': [(1944, 1932), (2008, 1932), (1944, 1868)]},
@@ -334,7 +335,6 @@ class SnapMap:
             territory = [t for t in self.territories if t.name == territory][0]
         if not isinstance(territory, Territory):
             raise Exception(f"territory must be a Territory object, the a Territory object's name. {territory}")
-        # print(f"Placing {token} from {token.nation.name} in {territory.name}")
         if isinstance(token, (UnitToken, CityToken, BoatToken)):
             b, map_pos = territory.try_adding_token(token)
             if not b:
@@ -342,13 +342,10 @@ class SnapMap:
                     raise Exception(f"Can't add token to its first territory! {token} of {token.nation} to {territory}")
                 b, map_pos = token.territory.try_adding_token(token)
                 if not b:
-                    print(token)
-                    print(token.territory)
                     raise Exception(f"Can't add token to its current territory! {token} of {token.nation} to {token.territory.name}")
                 territory = token.territory
             else:
                 if token.territory:
-                    print(f"About to remove {token} from {token.territory}")
                     token.territory.remove_token(token)
             # At this point, territory and map_pos are both definitely valid
             token.territory = territory
@@ -500,16 +497,17 @@ BoxLayout:
 class NationButton(Button):
     def on_press(self):
         app = App.get_running_app()
-        if app.active_nation == self.text:
+        # Here's a useful snippet for checking the map data:
+        if True and (app.active_nation == self.text):
             print(len(app.nations[0].tokens))
             u = app.nations[0].tokens[0]
-            print(u)
             for t in snap_map.territories:
-                if t.city_site:
+                if t.pop_limit==1: # This is the relevant test condition
                     u = next(unit for unit in app.nations[0].tokens if
                          isinstance(unit, UnitToken) and unit.territory.name == 'UnitStock')
                     u.goto_territory(t)
             app.nations[0].label_tokens()
+        # It will stick a unit token in whatever property you test for.
         old_an = app.active_nation
         app.active_nation = self.text
         for n in app.nations:
@@ -564,11 +562,11 @@ class Token(DragBehavior, Label):
             self.goto_territory(territory)
     
     def on_touch_down(self, touch):
-        if self.collide_point(*touch.pos) and self.nation and (self.nation.name == self.active_nation):
-            print(self)
+        if self.collide_point(*touch.pos):
             self.pos_hint = {}
             self.moving = True
-            self.nation.label_tokens()
+            if self.nation and (self.nation.name == self.active_nation):
+                self.nation.label_tokens()
         return super(Token, self).on_touch_down(touch)
 
     def goto_territory(self, territory):
