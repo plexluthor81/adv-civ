@@ -81,6 +81,7 @@ class Territory:
                             raise Exception(f"Unexpected unit token from {t.nation} in {self.name}")
                 self.unit_nations = []
                 self.add_token(token)
+                self.has_city_token = True
                 return True, self.unit_spots[0]
         if isinstance(token, UnitToken):
             if self.has_city_token:
