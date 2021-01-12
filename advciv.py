@@ -313,7 +313,7 @@ class SnapMap():
                      'HiddenBoatStock': {'pop_limit': 4, 'nations': None, 'Prime': (1768, -335), 'Alt': []},
                      'HiddenTreasury': {'pop_limit': 55, 'nations': None, 'Prime': (1768, -235), 'Alt': []} }
 
-    def get_snap_pos(self, window_pos, type='Token'):
+    def get_snap_pos(self, window_pos, type='Token', nation=None):
         pos = window_to_map(window_pos)
         territory = min(self.map_locations.keys(), key=lambda t: abs(sqrt((self.map_locations[t]['Prime'][0]-pos[0])**2 + (self.map_locations[t]['Prime'][1]-pos[1])**2)))
         if type=='Token' and territory in ['CityStock','BoatStock']:
