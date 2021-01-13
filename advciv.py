@@ -373,19 +373,17 @@ kv = '''
 
 <CityToken>:
     canvas.before:
-        Color:
-            rgba: tuple([x/255 for x in root.nation.color] + [.8]) if root.nation else (.5,.5,.5,.8)
         Ellipse:
             pos: self.pos
             size: self.size
+            source: root.nation.city_icon if root.nation else 'default_city.png'
 
 <BoatToken>:
     canvas.before:
-        Color:
-            rgba: tuple([x/255 for x in root.nation.color] + [.8]) if root.nation else (.5,.5,.5,.8)
         Rectangle:
             pos: self.pos
             size: self.size
+            source: root.nation.boat_icon if root.nation else 'default_boat.png'
 
 <Spotter>:
     canvas.before:
@@ -689,14 +687,17 @@ class Nation:
     boats_in_location = {}
     cities_in_location = {}
     unit_icon = 'default_unit_icon.png'
+    boat_icon = 'defualt_boat_icon.png'
 
-    def __init__(self, name, color, track, fl, unit_icon, num_units=55, **kwargs):
+    def __init__(self, name, color, track, fl, unit_icon, city_icon, boat_icon, num_units=55, **kwargs):
         self.name = name
         self.color = color
         self.track = track
         self.fl = fl
         self.num_units = num_units
         self.unit_icon = unit_icon
+        self.city_icon = city_icon
+        self.boat_icon = boat_icon
         for location in [t.name for t in snap_map.territories]:
             self.units_in_location[location] = 0
             self.boats_in_location[location] = 0
@@ -822,8 +823,8 @@ class TestApp(App):
         fl = root.ids['fl']
         global snap_map
         snap_map = SnapMap(root.ids['ms'], map_type='advciv')
-        self.nations.append(Nation('Africa', [186, 96, 41], 9, fl, 'africa_token_icon3.png', 55))
-        self.nations.append(Nation('Italy', [252, 0, 0], 8, fl, 'italy_token_icon.png', 55))
+        self.nations.append(Nation('Africa', [186, 96, 41], 9, fl, 'africa_token_icon.png', 'africa_city_icon.png', 'africa_ship_icon.png', 55))
+        self.nations.append(Nation('Italy', [252, 0, 0], 8, fl, 'italy_token_icon.png', 'africa_city_icon.png', 'africa_ship_icon.png', 55))
         return root
 
 TestApp().run()
