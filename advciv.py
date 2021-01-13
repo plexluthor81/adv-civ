@@ -825,6 +825,7 @@ class TestApp(App):
         snap_map = SnapMap(root.ids['ms'], map_type='advciv')
         self.nations.append(Nation('Africa', [186, 96, 41], 9, fl, 'africa_token_icon.png', 'africa_city_icon.png', 'africa_ship_icon.png', 55))
         self.nations.append(Nation('Italy', [252, 0, 0], 8, fl, 'italy_token_icon.png', 'africa_city_icon.png', 'africa_ship_icon.png', 55))
+        self.nations.append(Nation('Crete', [102, 201, 29], 5, fl, 'italy_token_icon.png', 'crete_city_icon.png', 'africa_ship_icon.png', 55))
         return root
 
 TestApp().run()
