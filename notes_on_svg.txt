@@ -1,0 +1,4 @@
+Notes on the SVG:
+
+Export from x0: 292 to x1: 4350 for a width of 4058,
+and y0: 119 to y1: 3029 for a height of 2910
