@@ -6,10 +6,13 @@ from kivy.app import App
 from kivy.uix.widget import Widget
 from kivy.uix.button import Button
 from kivy.properties import NumericProperty, StringProperty
+from kivy.network.urlrequest import UrlRequest
+from kivy.clock import Clock
 
 from contextlib import suppress
+from flask import json
 
-kv = '''
+nation_selector_kv = '''
 
 <NationDropDown>:
     Button:
@@ -17,7 +20,7 @@ kv = '''
         text: 'Not Selected'
         size_hint: (.5, .8)
         pos_hint: {'x': 0, 'center_y': .5}
-        on_release: dropdown.open(self)
+        on_release: root.open_at_right(self)
         on_parent: dropdown.dismiss()
         on_press: root.update()
 
@@ -102,26 +105,25 @@ kv = '''
         pos_hint: {'x': .65, 'center_y': .5}
        
 
-FloatLayout:
+<NationSelectionScreen>:
     Label:
         text: "Nation Selection"
         font_size: 25
         size_hint: (.5, .15)
         pos_hint: {'center_x': .5, 'center_y': .9}
     PlayerRow:
-        id: pr
         player_num: 1
-        player_name: 'Steve'
+        player_name: 'Open'
         size_hint: (1, .1)
         pos_hint: {'x': 0, 'y': .75}
     PlayerRow:
         player_num: 2
-        player_name: 'Ren'
+        player_name: 'Open'
         size_hint: (1, .1)
         pos_hint: {'x': 0, 'y': .65}
     PlayerRow:
         player_num: 3
-        player_name: 'Kyle'
+        player_name: 'Open'
         size_hint: (1, .1)
         pos_hint: {'x': 0, 'y': .55}
     PlayerRow:
@@ -151,13 +153,21 @@ FloatLayout:
         pos_hint: {'x': 0, 'y': .05}
 '''
 
+
 class NationDropDown(FloatLayout):
     def on_press(self):
-        App.get_running_app().show_stuff()
+        pass
+        # App.get_running_app().show_stuff()
+
+    def open_at_right(self, button):
+        dd = self.ids['dropdown']
+        dd.open(button)
+
+        dd.x += self.ids['btn'].width
+        dd.pos_hint = {'center_y': 0.5}
 
     def update(self):
         root = App.get_running_app().root
-        print(root.children)
         selected_nations = [self.ids['btn'].text]
         for pr in root.children:
             if pr == self:
@@ -169,14 +179,10 @@ class NationDropDown(FloatLayout):
                     print(f'Multiple people have selected {selected_nation}: {player} and at least one other')
                 else:
                     selected_nations.append(selected_nation)
-        print(selected_nations)
     
         with suppress(ValueError):
             selected_nations.remove(self.ids['btn'].text)
             selected_nations.remove('Not Selected')
-
-        print(self.ids)
-        print(self.ids['dropdown'].ids)
 
         self.ids['btn_africa'].disabled = 'Africa' in selected_nations
         self.ids['btn_italy'].disabled = 'Italy' in selected_nations
@@ -185,7 +191,7 @@ class NationDropDown(FloatLayout):
         self.ids['btn_crete'].disabled = 'Crete' in selected_nations
         self.ids['btn_asia'].disabled = 'Asia' in selected_nations
         self.ids['btn_assyria'].disabled = 'Assyria' in selected_nations
-        self.ids['btn_babylon'].disabled = 'Bablyon' in selected_nations
+        self.ids['btn_babylon'].disabled = 'Babylon' in selected_nations
         self.ids['btn_egypt'].disabled = 'Egypt' in selected_nations
 
 
@@ -194,32 +200,56 @@ class PlayerRow(FloatLayout):
     player_name = StringProperty('Player Name')
         
 
-class NationSelectorApp(App):
-    def update_buttons(self):
-        pass
+class NationSelectionScreen(FloatLayout):
+    server_url = StringProperty('')
 
-    def show_stuff(self, root=None):
-        if not root:
-            root = self.root
-        pr = root.ids['pr']
-        lnum = pr.ids['lnum']
-        lname = pr.ids['lname']
-        ndd = pr.ids['ndd']
-        btn = ndd.ids['btn']
-        dd = ndd.ids['dropdown']
-        
-        print('pr', pr.size, pr.pos)
-        print('lnum', lnum.size, lnum.pos)
-        print('lname', lname.size, lname.pos)
-        print('ndd', ndd.size, ndd.pos)
-        print('btn', btn.size, btn.pos)
-        print('dd', dd.size, dd.pos)
+    def __init__(self, server_info='', **kwargs):
+        self.server_info = server_info
+        super(NationSelectionScreen, self).__init__(**kwargs)
+
+
+class NationSelectorApp(App):
+    player_name = 'Initializing'
+    player_num = 0
+    page = None
+    server_info = {}
+
+    def check_post_response(self, resp, *args):
+        print(resp)
+
+    def show_error_msg(self, *args):
+        print('Some Error Happened')
+
+    def set_server(self, url):
+        self.server_info = {'url': url}
+
+    def set_player(self, player_name):
+        self.player_name = player_name
 
     def build(self):
-        root = Builder.load_string(kv)   
-        self.show_stuff(root)
-        return root
+        Clock.schedule_interval(self.refresh, 1)
+        Builder.load_string(nation_selector_kv)
+        self.page = NationSelectionScreen(self.server_info)
+        return self.page
 
-NationSelectorApp().run()
+    def refresh(self, resp, *args):
+        pass
+
+    def initialize_from_server(self, resp, *args):
+        pass
+
+
+if __name__ == "__main__":
+    ns = NationSelectorApp()
+    # ns.set_server('http://localhost:5000')
+    # ns.set_player('Steve')
+    # req = UrlRequest(url=f"{ns.server_info['url']}/new_user", on_success=ns.initialize_from_server,
+    #                  on_failure=ns.show_error_msg, on_error=ns.show_error_msg,
+    #                  req_body=json.dumps({"player_name": ns.player_name}),
+    #                  req_headers={'Content-Type': 'application/json'},
+    #                  timeout=None, method='POST', decode=True, debug=False, file_path=None, ca_file=None,
+    #                  verify=False)
+    ns.run()
+
 
         
