@@ -17,16 +17,16 @@ nation_selector_kv = '''
 <NationDropDown>:
     Button:
         id: btn
-        text: 'Not Selected'
+        text: 'Close'
         size_hint: (.5, .8)
         pos_hint: {'x': 0, 'center_y': .5}
-        on_release: root.open_at_right(self)
+        on_release: root.release(self)
         on_parent: dropdown.dismiss()
         on_press: root.update()
 
     DropDown:
         id: dropdown
-        on_select: btn.text = f"{args[1]}"
+        on_select: root.parent.parent.select(root.parent, f"{args[1]}")
         Button:
             id: btn_africa
             text: 'Africa'
@@ -105,7 +105,7 @@ nation_selector_kv = '''
         pos_hint: {'x': .65, 'center_y': .5}
        
 
-<NationSelectionScreen>:
+<NationSelectionScreen>:    
     Label:
         text: "Nation Selection"
         font_size: 25
@@ -159,10 +159,13 @@ class NationDropDown(FloatLayout):
         pass
         # App.get_running_app().show_stuff()
 
-    def open_at_right(self, button):
+    def release(self, button):
+        if button.text in ["Close", "Open"]:
+            self.parent.parent.select(self.parent, button.text)
+            return
+
         dd = self.ids['dropdown']
         dd.open(button)
-
         dd.x += self.ids['btn'].width
         dd.pos_hint = {'center_y': 0.5}
 
@@ -176,7 +179,6 @@ class NationDropDown(FloatLayout):
                 selected_nation = pr.ids['ndd'].ids['btn'].text
                 if selected_nation in selected_nations:
                     player = pr.ids['lname'].text
-                    print(f'Multiple people have selected {selected_nation}: {player} and at least one other')
                 else:
                     selected_nations.append(selected_nation)
     
@@ -202,10 +204,87 @@ class PlayerRow(FloatLayout):
 
 class NationSelectionScreen(FloatLayout):
     server_url = StringProperty('')
+    player_name = StringProperty('')
+    player_num = NumericProperty(0)
+    nation = StringProperty('')
 
-    def __init__(self, server_info='', **kwargs):
-        self.server_info = server_info
+    def __init__(self, server_url='', player_name='', **kwargs):
+        self.server_url = server_url
+        self.player_name = player_name
+        Clock.schedule_once(self.request_update)
         super(NationSelectionScreen, self).__init__(**kwargs)
+
+    def request_update(self, *args):
+        print('request_update')
+        print(self.server_url)
+        req = UrlRequest(url=f"{self.server_url}/nation_selection", on_success=self.handle_update,
+                         on_failure=self.show_error_msg, on_error=self.show_error_msg,
+                         req_body=None,
+                         req_headers={'Content-Type': 'application/json'},
+                         timeout=None, method='GET', decode=True, debug=False, file_path=None, ca_file=None,
+                         verify=False)
+
+    def handle_update(self, req, res):
+        res_list = json.loads(res)
+        print(res_list)
+        prs = sorted([pr for pr in self.children if isinstance(pr, PlayerRow)], key=lambda pr: pr.player_num)
+        if self.player_num == 0:
+            player_names = [p['player_name'] for p in res_list]
+            self.player_num = player_names.index(self.player_name) + 1
+            print(f"I'm player #{self.player_num}")
+            mypr = prs[self.player_num-1]
+            mypr.player_name = self.player_name
+            mypr.ids['ndd'].ids['btn'].text = res_list[self.player_num-1]['nation']
+        for i in range(8):
+            if prs[i].player_name != res_list[i]['player_name']:
+                print(f"updating #{i+1} name to {res_list[i]['player_name']}")
+                prs[i].player_name = res_list[i]['player_name']
+            if prs[i].ids['ndd'].ids['btn'].text != res_list[i]['nation']:
+                print(f"updating #{i+1} nation to {res_list[i]['nation']}")
+                if prs[i].player_name == 'Open':
+                    prs[i].ids['ndd'].ids['btn'].text = 'Close'
+                elif prs[i].player_name == 'Closed':
+                    prs[i].ids['ndd'].ids['btn'].text = 'Open'
+                else:
+                    prs[i].ids['ndd'].ids['btn'].text = res_list[i]['nation']
+            if prs[i].player_name not in [self.player_name, 'Open', 'Closed']:
+                prs[i].ids['ndd'].ids['btn'].disabled = True
+            else:
+                prs[i].ids['ndd'].ids['btn'].disabled = False
+
+        nations = [p['nation'] for p in res_list]
+        if 'Not Selected' not in nations:
+            print('Somehow we need to trigger the overall app to move to the next page')
+            return False
+        if not req.req_body:
+            Clock.schedule_once(self.request_update, 1)
+
+    def post(self, post_dict):
+        req = UrlRequest(url=f"{self.server_url}/nation_selection", on_success=self.handle_update,
+                         on_failure=self.show_error_msg, on_error=self.show_error_msg,
+                         req_body=json.dumps(post_dict),
+                         req_headers={'Content-Type': 'application/json'},
+                         timeout=None, method='POST', decode=True, debug=False, file_path=None, ca_file=None,
+                         verify=False)
+
+    def select(self, pr, selection_text):
+        print(f'select: {selection_text} for #{pr.player_num}')
+        if selection_text == 'Close':
+            pr.ids['ndd'].ids['btn'].text = 'Open'
+            self.post({"player_num": pr.player_num, "nation": selection_text})
+            return
+        if selection_text == 'Open':
+            pr.ids['ndd'].ids['btn'].text = 'Close'
+            self.post({"player_num": pr.player_num, "nation": selection_text})
+            return
+        if pr.player_num == self.player_num:
+            pr.ids['ndd'].ids['btn'].text = selection_text
+            self.post({"player_name": self.player_name, "nation": selection_text})
+
+
+    def show_error_msg(self, request, error):
+        print('Error')
+        print(error)
 
 
 class NationSelectorApp(App):
@@ -229,7 +308,7 @@ class NationSelectorApp(App):
     def build(self):
         Clock.schedule_interval(self.refresh, 1)
         Builder.load_string(nation_selector_kv)
-        self.page = NationSelectionScreen(self.server_info)
+        self.page = NationSelectionScreen('http://localhost:5000', 'Kyle')
         return self.page
 
     def refresh(self, resp, *args):
@@ -243,12 +322,7 @@ if __name__ == "__main__":
     ns = NationSelectorApp()
     # ns.set_server('http://localhost:5000')
     # ns.set_player('Steve')
-    # req = UrlRequest(url=f"{ns.server_info['url']}/new_user", on_success=ns.initialize_from_server,
-    #                  on_failure=ns.show_error_msg, on_error=ns.show_error_msg,
-    #                  req_body=json.dumps({"player_name": ns.player_name}),
-    #                  req_headers={'Content-Type': 'application/json'},
-    #                  timeout=None, method='POST', decode=True, debug=False, file_path=None, ca_file=None,
-    #                  verify=False)
+
     ns.run()
 
 

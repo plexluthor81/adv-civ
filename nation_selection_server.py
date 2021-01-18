@@ -18,7 +18,24 @@ def get_nation_selection():
     if request.method == 'GET':
         return json.dumps(players)
     if request.method == 'POST':
+        # Expecting a dict with either:
+        #   player_name and nation
+        # or
+        #   player_num and nation, with nation either 'Close' or 'Open'
         nation_selection_dict = request.get_json(force=True)
+        print(nation_selection_dict['nation'])
+        if ('nation' in nation_selection_dict) \
+                and ('player_num' in nation_selection_dict):
+            if nation_selection_dict['nation'] == 'Close':
+                players[nation_selection_dict['player_num'] - 1]['player_name'] = 'Closed'
+                players[nation_selection_dict['player_num'] - 1]['nation'] = 'Closed'
+                return json.dumps(players), 200
+            elif nation_selection_dict['nation'] == 'Open':
+                players[nation_selection_dict['player_num'] - 1]['player_name'] = 'Open'
+                players[nation_selection_dict['player_num'] - 1]['nation'] = 'Not Selected'
+                return json.dumps(players), 200
+            else:
+                return json.dumps({"success": False}), 400
         player_names = [p['player_name'] for p in players]
         nations = [p['nation'] for p in players]
         if ('player_name' not in nation_selection_dict) \
@@ -30,7 +47,7 @@ def get_nation_selection():
         if nation_selection_dict['nation'] in nations:
             return json.dumps({"success": False}), 409
         index = player_names.index(nation_selection_dict['player_name'])
-        player_names[index]['nation'] = nation_selection_dict['nation']
+        players[index]['nation'] = nation_selection_dict['nation']
         return json.dumps(players), 200
 
 
@@ -59,6 +76,7 @@ def get_new_user():
             # Existing player
             return json.dumps({"success": False}), 409
     return json.dumps({"success": False}), 400
+
 
 if __name__ == '__main__':
     api.run()

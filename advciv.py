@@ -12,6 +12,7 @@ from kivy.graphics.context_instructions import Color
 
 from math import sqrt
 
+
 class Territory:
     def __init__(self, name, pop_limit, unit_spots, city_site=False,
                  flood_plain='', flood_city=False, starting_nation='',
@@ -51,7 +52,7 @@ class Territory:
             token_class = BoatToken
         elif isinstance(token, CityToken):
             self.has_city_token = False
-            return # TODO: place tokens in that prime spot if this is conflict
+            return  # TODO: place tokens in that prime spot if this is conflict
         if nation_list and (len([n for n in nation_list if n==token.nation]) == 0):
             # If that was the last one for that nation, we have more to do
             nation_index = nation_list.index(token.nation)
