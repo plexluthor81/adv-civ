@@ -8,7 +8,7 @@ players = [{'player_name': 'Open', 'nation': 'Not Selected'}, {'player_name': 'O
            {'player_name': 'Open', 'nation': 'Not Selected'}, {'player_name': 'Open', 'nation': 'Not Selected'},
            {'player_name': 'Open', 'nation': 'Not Selected'}, {'player_name': 'Open', 'nation': 'Not Selected'}]
 
-valid_nations = ['Africa', 'Italy', 'Illyria', 'Thrace', 'Crete', 'Asia', 'Assyria', 'Bablyon', 'Egypt']
+valid_nations = ['Africa', 'Italy', 'Illyria', 'Thrace', 'Crete', 'Asia', 'Assyria', 'Babylon', 'Egypt']
 
 api = Flask(__name__)
 

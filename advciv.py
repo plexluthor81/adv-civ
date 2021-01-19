@@ -417,14 +417,14 @@ kv = '''
     color: (0,0,0)
     size_hint: .1, .1
 
-BoxLayout:
+FloatLayout:
     MapScatter:
         id: ms
         Image:
             source: 'civ_board.png'
             allow_stretch: True
-			keep_ratio: False
-			size: root.size
+            keep_ratio: False
+            size: root.size
             FloatLayout:
                 id: fl
                 size: ms.size

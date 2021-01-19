@@ -12,9 +12,14 @@ from kivy.clock import Clock
 from contextlib import suppress
 from flask import json
 
+# the dropdown weakly reference error from unwanted GC was fixed based on this:
+# https://stackoverflow.com/questions/46060693/referenceerror-weakly-referenced-object-no-longer-exists-kivy-dropdown
+
 nation_selector_kv = '''
 
 <NationDropDown>:
+    btn: btn.__self__
+    __safe_id: [dropdown.__self__]
     Button:
         id: btn
         text: 'Close'
@@ -26,6 +31,7 @@ nation_selector_kv = '''
 
     DropDown:
         id: dropdown
+        btn_africa: btn_africa.__self__
         on_select: root.parent.parent.select(root.parent, f"{args[1]}")
         Button:
             id: btn_africa
@@ -83,6 +89,7 @@ nation_selector_kv = '''
             on_release: dropdown.select('Egypt')
 
 <PlayerRow>:
+    ndd: ndd.__self__
     Label:
         id: lnum
         text: "Player " + str(root.player_num)
@@ -105,13 +112,15 @@ nation_selector_kv = '''
         pos_hint: {'x': .65, 'center_y': .5}
        
 
-<NationSelectionScreen>:    
+<NationSelectionScreen>:   
+    pr1: pr1.__self__ 
     Label:
         text: "Nation Selection"
         font_size: 25
         size_hint: (.5, .15)
         pos_hint: {'center_x': .5, 'center_y': .9}
     PlayerRow:
+        id: pr1
         player_num: 1
         player_name: 'Open'
         size_hint: (1, .1)
@@ -170,9 +179,9 @@ class NationDropDown(FloatLayout):
         dd.pos_hint = {'center_y': 0.5}
 
     def update(self):
-        root = App.get_running_app().root
+        nss = self.parent.parent
         selected_nations = [self.ids['btn'].text]
-        for pr in root.children:
+        for pr in nss.children:
             if pr == self:
                 continue
             if isinstance(pr, PlayerRow):
@@ -186,6 +195,7 @@ class NationDropDown(FloatLayout):
             selected_nations.remove(self.ids['btn'].text)
             selected_nations.remove('Not Selected')
 
+        print(selected_nations)
         self.ids['btn_africa'].disabled = 'Africa' in selected_nations
         self.ids['btn_italy'].disabled = 'Italy' in selected_nations
         self.ids['btn_illyria'].disabled = 'Illyria' in selected_nations
@@ -195,38 +205,46 @@ class NationDropDown(FloatLayout):
         self.ids['btn_assyria'].disabled = 'Assyria' in selected_nations
         self.ids['btn_babylon'].disabled = 'Babylon' in selected_nations
         self.ids['btn_egypt'].disabled = 'Egypt' in selected_nations
+        print(self.ids['btn_africa'].disabled)
 
 
 class PlayerRow(FloatLayout):
     player_num = NumericProperty(-1)
     player_name = StringProperty('Player Name')
-        
+
 
 class NationSelectionScreen(FloatLayout):
     server_url = StringProperty('')
     player_name = StringProperty('')
     player_num = NumericProperty(0)
     nation = StringProperty('')
+    refs = []
 
     def __init__(self, server_url='', player_name='', **kwargs):
         self.server_url = server_url
         self.player_name = player_name
+
         Clock.schedule_once(self.request_update)
         super(NationSelectionScreen, self).__init__(**kwargs)
 
+    def get_selected_nations(self):
+        prs = sorted([pr for pr in self.children if isinstance(pr, PlayerRow)], key=lambda pr: pr.player_num)
+        selected_nations = [pr.ids['ndd'].ids['btn'].text for pr in prs]
+        while 'Open' in selected_nations:
+            selected_nations.remove('Open')
+        return selected_nations
+
     def request_update(self, *args):
-        print('request_update')
-        print(self.server_url)
-        req = UrlRequest(url=f"{self.server_url}/nation_selection", on_success=self.handle_update,
-                         on_failure=self.show_error_msg, on_error=self.show_error_msg,
-                         req_body=None,
-                         req_headers={'Content-Type': 'application/json'},
-                         timeout=None, method='GET', decode=True, debug=False, file_path=None, ca_file=None,
-                         verify=False)
+        if self.server_url and self.player_name:
+            req = UrlRequest(url=f"{self.server_url}/nation_selection", on_success=self.handle_update,
+                             on_failure=self.show_error_msg, on_error=self.show_error_msg,
+                             req_body=None,
+                             req_headers={'Content-Type': 'application/json'},
+                             timeout=None, method='GET', decode=True, debug=False, file_path=None, ca_file=None,
+                             verify=False)
 
     def handle_update(self, req, res):
         res_list = json.loads(res)
-        print(res_list)
         prs = sorted([pr for pr in self.children if isinstance(pr, PlayerRow)], key=lambda pr: pr.player_num)
         if self.player_num == 0:
             player_names = [p['player_name'] for p in res_list]
@@ -240,7 +258,7 @@ class NationSelectionScreen(FloatLayout):
                 print(f"updating #{i+1} name to {res_list[i]['player_name']}")
                 prs[i].player_name = res_list[i]['player_name']
             if prs[i].ids['ndd'].ids['btn'].text != res_list[i]['nation']:
-                print(f"updating #{i+1} nation to {res_list[i]['nation']}")
+                # print(f"updating #{i+1} nation to {res_list[i]['nation']}")
                 if prs[i].player_name == 'Open':
                     prs[i].ids['ndd'].ids['btn'].text = 'Close'
                 elif prs[i].player_name == 'Closed':
@@ -281,48 +299,23 @@ class NationSelectionScreen(FloatLayout):
             pr.ids['ndd'].ids['btn'].text = selection_text
             self.post({"player_name": self.player_name, "nation": selection_text})
 
-
-    def show_error_msg(self, request, error):
+    @staticmethod
+    def show_error_msg(request, error):
         print('Error')
         print(error)
 
 
 class NationSelectorApp(App):
-    player_name = 'Initializing'
-    player_num = 0
     page = None
-    server_info = {}
-
-    def check_post_response(self, resp, *args):
-        print(resp)
-
-    def show_error_msg(self, *args):
-        print('Some Error Happened')
-
-    def set_server(self, url):
-        self.server_info = {'url': url}
-
-    def set_player(self, player_name):
-        self.player_name = player_name
 
     def build(self):
-        Clock.schedule_interval(self.refresh, 1)
         Builder.load_string(nation_selector_kv)
-        self.page = NationSelectionScreen('http://localhost:5000', 'Kyle')
+        self.page = NationSelectionScreen('http://localhost:5000', 'Ren')
         return self.page
-
-    def refresh(self, resp, *args):
-        pass
-
-    def initialize_from_server(self, resp, *args):
-        pass
 
 
 if __name__ == "__main__":
     ns = NationSelectorApp()
-    # ns.set_server('http://localhost:5000')
-    # ns.set_player('Steve')
-
     ns.run()
 
 
