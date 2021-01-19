@@ -5,7 +5,7 @@ from kivy.lang import Builder
 from kivy.app import App
 from kivy.uix.widget import Widget
 from kivy.uix.button import Button
-from kivy.properties import NumericProperty, StringProperty
+from kivy.properties import NumericProperty, StringProperty, BooleanProperty
 from kivy.network.urlrequest import UrlRequest
 from kivy.clock import Clock
 
@@ -219,11 +219,13 @@ class NationSelectionScreen(FloatLayout):
     player_num = NumericProperty(0)
     nation = StringProperty('')
     refs = []
+    finished = BooleanProperty(False)
 
     def __init__(self, server_url='', player_name='', **kwargs):
         self.server_url = server_url
         self.player_name = player_name
-
+        self.finished = False
+        Builder.load_string(nation_selector_kv)
         Clock.schedule_once(self.request_update)
         super(NationSelectionScreen, self).__init__(**kwargs)
 
@@ -272,7 +274,7 @@ class NationSelectionScreen(FloatLayout):
 
         nations = [p['nation'] for p in res_list]
         if 'Not Selected' not in nations:
-            print('Somehow we need to trigger the overall app to move to the next page')
+            self.finished = True
             return False
         if not req.req_body:
             Clock.schedule_once(self.request_update, 1)
@@ -309,7 +311,6 @@ class NationSelectorApp(App):
     page = None
 
     def build(self):
-        Builder.load_string(nation_selector_kv)
         self.page = NationSelectionScreen('http://localhost:5000', 'Ren')
         return self.page
 
