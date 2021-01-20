@@ -2,19 +2,30 @@ from kivy.uix.scatter import Scatter
 from kivy.app import App
 from kivy.lang import Builder
 from kivy.uix.floatlayout import FloatLayout
+from kivy.uix.boxlayout import BoxLayout
+
+from tokens import Spotter
 
 civ_map_kv = '''
 <CivMapScreen>:
+    pos: root.pos
+    size: root.size
     MapScatter:
         id: ms
+        size: root.size
+        pos: (0,0)
         Image:
             source: 'civ_board.png'
             allow_stretch: True
             keep_ratio: False
             size: root.size
+            pos: (0,0)
             FloatLayout:
                 id: fl
-                size: ms.size                
+                size: ms.size      
+                
+
+          
 '''
 
 
@@ -48,10 +59,16 @@ class MapScatter(Scatter):
         return super(MapScatter, self).on_touch_down(touch)
 
 
-class CivMapScreen(FloatLayout):
+class CivMapScreen(BoxLayout):
+    nations = []
+
     def __init__(self, **kwargs):
         Builder.load_string(civ_map_kv)
         super(CivMapScreen, self).__init__(**kwargs)
+
+    def add_spotter(self, spotter):
+        print(f'Adding {spotter} to {self.ids["fl"]}')
+        self.ids['fl'].add_widget(spotter)
 
 
 class CivMapApp(App):

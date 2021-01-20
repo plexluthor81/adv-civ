@@ -195,7 +195,6 @@ class NationDropDown(FloatLayout):
             selected_nations.remove(self.ids['btn'].text)
             selected_nations.remove('Not Selected')
 
-        print(selected_nations)
         self.ids['btn_africa'].disabled = 'Africa' in selected_nations
         self.ids['btn_italy'].disabled = 'Italy' in selected_nations
         self.ids['btn_illyria'].disabled = 'Illyria' in selected_nations
@@ -205,7 +204,6 @@ class NationDropDown(FloatLayout):
         self.ids['btn_assyria'].disabled = 'Assyria' in selected_nations
         self.ids['btn_babylon'].disabled = 'Babylon' in selected_nations
         self.ids['btn_egypt'].disabled = 'Egypt' in selected_nations
-        print(self.ids['btn_africa'].disabled)
 
 
 class PlayerRow(FloatLayout):
@@ -237,7 +235,7 @@ class NationSelectionScreen(FloatLayout):
         return selected_nations
 
     def request_update(self, *args):
-        if self.server_url and self.player_name:
+        if self.server_url and self.player_name and not self.finished:
             req = UrlRequest(url=f"{self.server_url}/nation_selection", on_success=self.handle_update,
                              on_failure=self.show_error_msg, on_error=self.show_error_msg,
                              req_body=None,
@@ -247,6 +245,7 @@ class NationSelectionScreen(FloatLayout):
 
     def handle_update(self, req, res):
         res_list = json.loads(res)
+        print(res_list)
         prs = sorted([pr for pr in self.children if isinstance(pr, PlayerRow)], key=lambda pr: pr.player_num)
         if self.player_num == 0:
             player_names = [p['player_name'] for p in res_list]
@@ -257,7 +256,7 @@ class NationSelectionScreen(FloatLayout):
             mypr.ids['ndd'].ids['btn'].text = res_list[self.player_num-1]['nation']
         for i in range(8):
             if prs[i].player_name != res_list[i]['player_name']:
-                print(f"updating #{i+1} name to {res_list[i]['player_name']}")
+                # print(f"updating #{i+1} name to {res_list[i]['player_name']}")
                 prs[i].player_name = res_list[i]['player_name']
             if prs[i].ids['ndd'].ids['btn'].text != res_list[i]['nation']:
                 # print(f"updating #{i+1} nation to {res_list[i]['nation']}")

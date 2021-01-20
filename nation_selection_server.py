@@ -3,9 +3,9 @@ from random import randrange
 
 # Open a terminal run this with python3 drag_server.py
 
-players = [{'player_name': 'Open', 'nation': 'Not Selected'}, {'player_name': 'Open', 'nation': 'Not Selected'},
-           {'player_name': 'Open', 'nation': 'Not Selected'}, {'player_name': 'Open', 'nation': 'Not Selected'},
-           {'player_name': 'Open', 'nation': 'Not Selected'}, {'player_name': 'Open', 'nation': 'Not Selected'},
+players = [{'player_name': 'Closed', 'nation': 'Open'}, {'player_name': 'Closed', 'nation': 'Open'},
+           {'player_name': 'Closed', 'nation': 'Open'}, {'player_name': 'Closed', 'nation': 'Open'},
+           {'player_name': 'Closed', 'nation': 'Open'}, {'player_name': 'Closed', 'nation': 'Open'},
            {'player_name': 'Open', 'nation': 'Not Selected'}, {'player_name': 'Open', 'nation': 'Not Selected'}]
 
 valid_nations = ['Africa', 'Italy', 'Illyria', 'Thrace', 'Crete', 'Asia', 'Assyria', 'Babylon', 'Egypt']
