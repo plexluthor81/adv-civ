@@ -5,7 +5,8 @@ from kivy.lang import Builder
 from kivy.app import App
 from kivy.uix.widget import Widget
 from kivy.uix.button import Button
-from kivy.properties import NumericProperty, StringProperty, BooleanProperty
+from kivy.uix.label import Label
+from kivy.properties import NumericProperty, StringProperty, BooleanProperty, ListProperty
 from kivy.network.urlrequest import UrlRequest
 from kivy.clock import Clock
 
@@ -15,7 +16,7 @@ from flask import json
 # the dropdown weakly reference error from unwanted GC was fixed based on this:
 # https://stackoverflow.com/questions/46060693/referenceerror-weakly-referenced-object-no-longer-exists-kivy-dropdown
 
-nation_selector_kv = '''
+nation_dropdown_kv = '''
 
 <NationDropDown>:
     btn: btn.__self__
@@ -88,82 +89,14 @@ nation_selector_kv = '''
             height: 35
             on_release: dropdown.select('Egypt')
 
-<PlayerRow>:
-    ndd: ndd.__self__
-    Label:
-        id: lnum
-        text: "Player " + str(root.player_num)
-        text_size: self.size
-        halign: 'right'
-        valign: 'center'
-        size_hint: (.33, 1)
-        pos_hint: {'right': .35, 'center_y': .5}
-    Label:
-        id: lname
-        text: root.player_name
-        text_size: self.size
-        halign: 'center'
-        valign: 'center'
-        size_hint: (None, 1)
-        pos_hint: {'center_x': .5, 'center_y': .5}
-    NationDropDown:
-        id: ndd
-        size_hint: (.33, 1)
-        pos_hint: {'x': .65, 'center_y': .5}
-       
-
-<NationSelectionScreen>:   
-    pr1: pr1.__self__ 
-    Label:
-        text: "Nation Selection"
-        font_size: 25
-        size_hint: (.5, .15)
-        pos_hint: {'center_x': .5, 'center_y': .9}
-    PlayerRow:
-        id: pr1
-        player_num: 1
-        player_name: 'Open'
-        size_hint: (1, .1)
-        pos_hint: {'x': 0, 'y': .75}
-    PlayerRow:
-        player_num: 2
-        player_name: 'Open'
-        size_hint: (1, .1)
-        pos_hint: {'x': 0, 'y': .65}
-    PlayerRow:
-        player_num: 3
-        player_name: 'Open'
-        size_hint: (1, .1)
-        pos_hint: {'x': 0, 'y': .55}
-    PlayerRow:
-        player_num: 4
-        player_name: 'Open'
-        size_hint: (1, .1)
-        pos_hint: {'x': 0, 'y': .45}
-    PlayerRow:
-        player_num: 5
-        player_name: 'Open'
-        size_hint: (1, .1)
-        pos_hint: {'x': 0, 'y': .35}
-    PlayerRow:
-        player_num: 6
-        player_name: 'Open'
-        size_hint: (1, .1)
-        pos_hint: {'x': 0, 'y': .25}
-    PlayerRow:
-        player_num: 7
-        player_name: 'Open'
-        size_hint: (1, .1)
-        pos_hint: {'x': 0, 'y': .15}
-    PlayerRow:
-        player_num: 8
-        player_name: 'Open'
-        size_hint: (1, .1)
-        pos_hint: {'x': 0, 'y': .05}
 '''
 
 
 class NationDropDown(FloatLayout):
+    def __init__(self, **kwargs):
+        Builder.load_string(nation_dropdown_kv)
+        super(NationDropDown, self).__init__(**kwargs)
+
     def on_press(self):
         pass
         # App.get_running_app().show_stuff()
@@ -181,15 +114,12 @@ class NationDropDown(FloatLayout):
     def update(self):
         nss = self.parent.parent
         selected_nations = [self.ids['btn'].text]
-        for pr in nss.children:
+        for pr in nss.prs:
             if pr == self:
                 continue
-            if isinstance(pr, PlayerRow):
-                selected_nation = pr.ids['ndd'].ids['btn'].text
-                if selected_nation in selected_nations:
-                    player = pr.ids['lname'].text
-                else:
-                    selected_nations.append(selected_nation)
+            selected_nation = pr.ndd.ids['btn'].text
+            if selected_nation not in selected_nations:
+                selected_nations.append(selected_nation)
     
         with suppress(ValueError):
             selected_nations.remove(self.ids['btn'].text)
@@ -209,6 +139,7 @@ class NationDropDown(FloatLayout):
 class PlayerRow(FloatLayout):
     player_num = NumericProperty(-1)
     player_name = StringProperty('Player Name')
+    ndd = None
 
 
 class NationSelectionScreen(FloatLayout):
@@ -216,20 +147,52 @@ class NationSelectionScreen(FloatLayout):
     player_name = StringProperty('')
     player_num = NumericProperty(0)
     nation = StringProperty('')
-    refs = []
+    nations = ListProperty([StringProperty('Not Selected'),StringProperty('Not Selected'),StringProperty('Not Selected'),StringProperty('Not Selected'),StringProperty('Not Selected'),StringProperty('Not Selected'),StringProperty('Not Selected'),StringProperty('Not Selected')])
+    names = ListProperty([StringProperty('Open'),StringProperty('Open'),StringProperty('Open'),StringProperty('Open'),StringProperty('Open'),StringProperty('Open'),StringProperty('Open'),StringProperty('Open')])
     finished = BooleanProperty(False)
+    prs = [None, None, None, None, None, None, None, None]
 
     def __init__(self, server_url='', player_name='', **kwargs):
         self.server_url = server_url
         self.player_name = player_name
         self.finished = False
-        Builder.load_string(nation_selector_kv)
+        self.names=['Not Selected','Not Selected','Not Selected','Not Selected','Not Selected','Not Selected','Not Selected','Not Selected']
         Clock.schedule_once(self.request_update)
         super(NationSelectionScreen, self).__init__(**kwargs)
+        self.add_widget(Label(text="Nation Selection", font_size=25, size_hint=(.5, .15), pos_hint={'center_x':.5, 'center_y': .9}))
+        for i in range(8):
+            self.add_player_row(i)
+        self.bind(names=self.update_pr_names)
+        self.bind(nations=self.update_pr_nations)
+
+    def update_pr_names(self):
+        for i in range(8):
+            if self.prs[i]:
+                self.prs[i].player_name = self.names[i]
+
+    def update_pr_nations(self):
+        for i in range(8):
+            if self.prs[i]:
+                self.prs[i].player_name = self.names[i]
+
+    def add_player_row(self, num):
+        self.prs[num] = PlayerRow(size_hint=(1, .1), pos_hint={'x': 0, 'y': 0.75-num/10.0})
+        self.prs[num].player_num = num+1
+        print(self.names[num])
+        self.prs[num].player_name = self.names[num]
+        pr_label = Label(text="Player "+str(num+1), halign='right', valign='center', size_hint=(.33, 1), pos_hint={'right': 0.35, 'center_y': 0.5})
+        pr_label.text_size = pr_label.size
+        self.prs[num].add_widget(pr_label)
+        pr_name = Label(text=self.prs[num].player_name, halign='center', valign='center', size_hint=(.33, 1), pos_hint={'center_x': 0.5, 'center_y': 0.5})
+        self.prs[num].bind(player_name=pr_name.setter('text'))
+        pr_name.text_size = pr_name.size
+        self.prs[num].add_widget(pr_name)
+        self.prs[num].ndd = NationDropDown(size_hint=(.33, 1), pos_hint={'x': .65, 'center_y': .5})
+        self.prs[num].add_widget(self.prs[num].ndd)
+        self.add_widget(self.prs[num])
 
     def get_selected_nations(self):
-        prs = sorted([pr for pr in self.children if isinstance(pr, PlayerRow)], key=lambda pr: pr.player_num)
-        selected_nations = [pr.ids['ndd'].ids['btn'].text for pr in prs]
+        selected_nations = [self.pr.ndd.ids['btn'].text for pr in prs]
         while 'Open' in selected_nations:
             selected_nations.remove('Open')
         return selected_nations
@@ -246,30 +209,34 @@ class NationSelectionScreen(FloatLayout):
     def handle_update(self, req, res):
         res_list = json.loads(res)
         print(res_list)
-        prs = sorted([pr for pr in self.children if isinstance(pr, PlayerRow)], key=lambda pr: pr.player_num)
         if self.player_num == 0:
             player_names = [p['player_name'] for p in res_list]
             self.player_num = player_names.index(self.player_name) + 1
             print(f"I'm player #{self.player_num}")
-            mypr = prs[self.player_num-1]
+            mypr = self.prs[self.player_num-1]
+            print(mypr)
+            print(mypr.player_name)
             mypr.player_name = self.player_name
-            mypr.ids['ndd'].ids['btn'].text = res_list[self.player_num-1]['nation']
+            print(mypr.player_name)
+            print(mypr.ndd)
+            print(mypr.ndd.ids)
+            mypr.ndd.ids['btn'].text = res_list[self.player_num-1]['nation']
         for i in range(8):
-            if prs[i].player_name != res_list[i]['player_name']:
+            if self.prs[i].player_name != res_list[i]['player_name']:
                 # print(f"updating #{i+1} name to {res_list[i]['player_name']}")
-                prs[i].player_name = res_list[i]['player_name']
-            if prs[i].ids['ndd'].ids['btn'].text != res_list[i]['nation']:
+                self.prs[i].player_name = res_list[i]['player_name']
+            if self.prs[i].ndd.ids['btn'].text != res_list[i]['nation']:
                 # print(f"updating #{i+1} nation to {res_list[i]['nation']}")
-                if prs[i].player_name == 'Open':
-                    prs[i].ids['ndd'].ids['btn'].text = 'Close'
-                elif prs[i].player_name == 'Closed':
-                    prs[i].ids['ndd'].ids['btn'].text = 'Open'
+                if self.prs[i].player_name == 'Open':
+                    self.prs[i].ndd.ids['btn'].text = 'Close'
+                elif self.prs[i].player_name == 'Closed':
+                    self.prs[i].ndd.ids['btn'].text = 'Open'
                 else:
-                    prs[i].ids['ndd'].ids['btn'].text = res_list[i]['nation']
-            if prs[i].player_name not in [self.player_name, 'Open', 'Closed']:
-                prs[i].ids['ndd'].ids['btn'].disabled = True
+                    self.prs[i].ndd.ids['btn'].text = res_list[i]['nation']
+            if self.prs[i].player_name not in [self.player_name, 'Open', 'Closed']:
+                self.prs[i].ndd.ids['btn'].disabled = True
             else:
-                prs[i].ids['ndd'].ids['btn'].disabled = False
+                self.prs[i].ndd.ids['btn'].disabled = False
 
         nations = [p['nation'] for p in res_list]
         if 'Not Selected' not in nations:
@@ -289,15 +256,15 @@ class NationSelectionScreen(FloatLayout):
     def select(self, pr, selection_text):
         print(f'select: {selection_text} for #{pr.player_num}')
         if selection_text == 'Close':
-            pr.ids['ndd'].ids['btn'].text = 'Open'
+            pr.ndd.ids['btn'].text = 'Open'
             self.post({"player_num": pr.player_num, "nation": selection_text})
             return
         if selection_text == 'Open':
-            pr.ids['ndd'].ids['btn'].text = 'Close'
+            pr.ndd.ids['btn'].text = 'Close'
             self.post({"player_num": pr.player_num, "nation": selection_text})
             return
         if pr.player_num == self.player_num:
-            pr.ids['ndd'].ids['btn'].text = selection_text
+            pr.ndd.ids['btn'].text = selection_text
             self.post({"player_name": self.player_name, "nation": selection_text})
 
     @staticmethod
@@ -310,13 +277,10 @@ class NationSelectorApp(App):
     page = None
 
     def build(self):
-        self.page = NationSelectionScreen('http://localhost:5000', 'Ren')
+        self.page = NationSelectionScreen('http://localhost:5000', 'Steve')
         return self.page
 
 
 if __name__ == "__main__":
     ns = NationSelectorApp()
     ns.run()
-
-
-        

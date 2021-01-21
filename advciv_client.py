@@ -10,7 +10,7 @@ from kivy.uix.screenmanager import Screen, ScreenManager
 
 from contextlib import suppress
 
-from nation_selector import NationSelectionScreen, nation_selector_kv
+from nation_selector import NationSelectionScreen
 from login_screen import LoginScreen
 from civ_map_screen import CivMapScreen
 from nation import Nation
