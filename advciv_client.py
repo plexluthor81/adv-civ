@@ -35,7 +35,7 @@ class AdvCivClientApp(App):
 
     def build(self):
         self.title = "Advanced Civilization"
-        self.screen_manager = ScreenManager(pos=(0, 0), pos_hint={'x': 0, 'y': 0})
+        self.screen_manager = ScreenManager(pos=(0, 0), pos_hint={'x': 0, 'y': 0}, size_hint=(1, 1))
 
         self.login_page = LoginScreen()
         screen = Screen(name="Login")
@@ -53,8 +53,8 @@ class AdvCivClientApp(App):
         self.login_page.bind(name=self.nation_selection_page.setter('player_name'))
         self.login_page.bind(url=self.nation_selection_page.setter('server_url'))
 
-        self.civ_map_page = CivMapScreen()
-        screen = Screen(name="CivMap")
+        self.civ_map_page = CivMapScreen(pos_hint={'x': 0, 'y': 0}, size_hint=(1, 1))
+        screen = Screen(name="CivMap", pos_hint={'x': 0, 'y': 0}, size_hint=(1, 1))
         screen.add_widget(self.civ_map_page)
         self.screen_manager.add_widget(screen)
 
@@ -74,7 +74,7 @@ class AdvCivClientApp(App):
             self.active_nation = self.nation_selection_page.nation
             self.screen_manager.current = "CivMap"
 
-            snap_map = SnapMap(self.civ_map_page.ids['ms'])
+            snap_map = SnapMap(self.civ_map_page.ms)
 
             # spotter = Spotter(size_hint=snap_map.size_to_hint((60, 60)))
             # self.civ_map_page.add_spotter(spotter)

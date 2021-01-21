@@ -2,6 +2,7 @@ from kivy.uix.behaviors import DragBehavior
 from kivy.uix.label import Label
 from kivy.properties import NumericProperty, ListProperty, StringProperty, ObjectProperty
 from kivy.lang import Builder
+from kivy.graphics import Color, Rectangle
 
 Token_kv = '''
 <AstTokenWidget>:
@@ -143,31 +144,46 @@ class AstToken(Label):
     track = NumericProperty(0)
     color = ListProperty([0, 0, 0])
     target_size = 48
+    rect = None
 
-    def __init__(self, ast=0, track=0, color=[0, 0, 0], **kwargs):
+    def __init__(self, ast=0, track=0, color=[.5, .5, .5], **kwargs):
+        self.text = 'A'
+        super(AstToken, self).__init__(**kwargs)
         self.ast = ast
         self.track = track
         self.color = color
-        Builder.load_string(Token_kv)
-        super(AstToken, self).__init__(**kwargs)
+        # Builder.load_string(Token_kv)
+        canvas_color = [x / 255 for x in self.color] + [.99]
+        with self.canvas.before:
+            Color(*canvas_color)
+            # rgba: tuple([x / 255 for x in self.color] + [.99])
+            self.rect = Rectangle(pos=self.pos, size=self.size)
+        self.bind(pos=self.update_rect)
+        self.bind(size=self.update_rect)
+
+    def update_rect(self, *args):
+        if self.rect:
+            self.rect.pos = self.pos
+            self.rect.size = self.size
 
     def refresh_pos(self):
-        print('AST refresh_pos')
-        self.pos_hint['x'] = (208 + self.ast * 60) / 4058.0
-        self.pos_hint['y'] = (28 + self.track * 60) / 2910.0
+        print(f'AST refresh_pos {self.color} {tuple([x / 255.0 for x in self.color] + [.99])}')
+        self.pos_hint['x'] = (207 + self.ast * 60) / 4058.0
+        self.pos_hint['y'] = (26 + self.track * 60) / 2910.0
         print(self.pos_hint)
         print(self.parent)
+
         if self.parent:
             self.parent._trigger_layout()
 
     def on_touch_down(self, touch):
         if self.collide_point(*touch.pos):
-            print(f'touch_down on AstToken: {self.ast} {self.track} {self.color}')
-            AstToken.show_parentage(self, 5)
+            print(f'touch_down on AstToken: {self.ast} {self.track} {self.color} {self.pos}, {self.pos_hint}')
+            # AstToken.show_parentage(self, 6)
             self.ast += 1
             if self.ast > 15:
                 self.ast = 1
-            AstToken.show_parentage(self, 5)
+            # AstToken.show_parentage(self, 6)
 
     @staticmethod
     def show_parentage(obj, i):
