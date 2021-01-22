@@ -139,7 +139,12 @@ class NationDropDown(FloatLayout):
 class PlayerRow(FloatLayout):
     player_num = NumericProperty(-1)
     player_name = StringProperty('Player Name')
-    ndd = None
+
+    def __init__(self, **kwargs):
+        super(PlayerRow, self).__init__(**kwargs)
+        self.player_num = -1
+        self.player_name = ''
+        self.ndd = None
 
 
 class NationSelectionScreen(FloatLayout):
@@ -147,16 +152,22 @@ class NationSelectionScreen(FloatLayout):
     player_name = StringProperty('')
     player_num = NumericProperty(0)
     nation = StringProperty('')
-    nations = ListProperty([StringProperty('Not Selected'),StringProperty('Not Selected'),StringProperty('Not Selected'),StringProperty('Not Selected'),StringProperty('Not Selected'),StringProperty('Not Selected'),StringProperty('Not Selected'),StringProperty('Not Selected')])
-    names = ListProperty([StringProperty('Open'),StringProperty('Open'),StringProperty('Open'),StringProperty('Open'),StringProperty('Open'),StringProperty('Open'),StringProperty('Open'),StringProperty('Open')])
     finished = BooleanProperty(False)
-    prs = [None, None, None, None, None, None, None, None]
+    nations = ListProperty(
+        ['Not Selected', 'Not Selected', 'Not Selected', 'Not Selected', 'Not Selected', 'Not Selected', 'Not Selected',
+         'Not Selected'])
+    names = ListProperty(['Open', 'Open', 'Open', 'Open', 'Open', 'Open', 'Open', 'Open'])
 
     def __init__(self, server_url='', player_name='', **kwargs):
         self.server_url = server_url
         self.player_name = player_name
+        self.player_num = 0
+        self.nation = ''
         self.finished = False
-        self.names=['Not Selected','Not Selected','Not Selected','Not Selected','Not Selected','Not Selected','Not Selected','Not Selected']
+        self.nations = ['Not Selected','Not Selected','Not Selected','Not Selected','Not Selected','Not Selected','Not Selected','Not Selected']
+        self.names = ['Open', 'Open', 'Open', 'Open', 'Open', 'Open', 'Open', 'Open']
+        self.prs = [None, None, None, None, None, None, None, None]
+
         Clock.schedule_once(self.request_update)
         super(NationSelectionScreen, self).__init__(**kwargs)
         self.add_widget(Label(text="Nation Selection", font_size=25, size_hint=(.5, .15), pos_hint={'center_x':.5, 'center_y': .9}))
@@ -275,7 +286,9 @@ class NationSelectionScreen(FloatLayout):
 
 
 class NationSelectorApp(App):
-    page = None
+    def __init__(self, **kwargs):
+        super(NationSelectorApp, self).__init__(**kwargs)
+        self.page = None
 
     def build(self):
         self.page = NationSelectionScreen('http://localhost:5000', 'Steve')

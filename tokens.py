@@ -6,19 +6,19 @@ from kivy.graphics import Color, Rectangle, Ellipse
 
 
 class Token(DragBehavior, Label):
-    nation = ObjectProperty(None)
+    nation = ObjectProperty(None, allownone=True)
     active_nation = StringProperty('')
-    hidden = False
-    moving = False
-    territory = ObjectProperty(None, allownone=True)
     color = ListProperty([0, 0, 0, 1])
-    rect = None
+    territory = ObjectProperty(None, allownone=True)
 
     def __init__(self, nation=None, hidden=False, territory=None, moving=False, token_color=[255, 255, 255], icon='', **kwargs):
         super(Token, self).__init__(**kwargs)
         self.nation = nation
+        self.active_nation = ''
         self.hidden = hidden
         self.moving = moving
+        self.color = [0, 0, 0, 1]
+        self.rect = None
         self.drag_height = self.height
         self.bind(height=self.setter('drag_rect_height'))
         self.drag_width = self.width
@@ -160,45 +160,26 @@ class Spotter(Token):
 class AstToken(Token):
     ast = NumericProperty(0)
     track = NumericProperty(0)
-    target_size = 48
-    rect = None
 
     def __init__(self, ast=0, track=0, **kwargs):
         super(AstToken, self).__init__(**kwargs)
         self.ast = ast
         self.track = track
+        self.pos_hint = {'x': (208 + self.ast * 60) / 4058.0, 'y': (27 + self.track * 60) / 2910.0}
 
     def refresh_pos(self):
-        print(f'AST refresh_pos {self.color} {tuple([x / 255.0 for x in self.color] + [.99])}')
-        self.pos_hint['x'] = (207 + self.ast * 60) / 4058.0
-        self.pos_hint['y'] = (26 + self.track * 60) / 2910.0
-        print(self.pos_hint)
-        print(self.parent)
-
+        self.pos_hint = {'x': (208 + self.ast * 60) / 4058.0, 'y': (27 + self.track * 60) / 2910.0}
         if self.parent:
             self.parent._trigger_layout()
 
     def on_touch_down(self, touch):
         if self.collide_point(*touch.pos):
-            print(f'touch_down on AstToken: {self.ast} {self.track} {self.color} {self.pos}, {self.pos_hint}')
-            # AstToken.show_parentage(self, 6)
             self.ast += 1
             if self.ast > 15:
                 self.ast = 1
-            # AstToken.show_parentage(self, 6)
-
-    @staticmethod
-    def show_parentage(obj, i):
-        if i > 0:
-            AstToken.show_parentage(obj.parent, i-1)
-        print(obj)
-        print(obj.pos, obj.pos_hint)
-        print(obj.size, obj.size_hint)
 
     def on_track(self, instance, pos):
         self.refresh_pos()
 
     def on_ast(self, instance, pos):
         self.refresh_pos()
-
-

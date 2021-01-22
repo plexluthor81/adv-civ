@@ -74,26 +74,17 @@ class AdvCivClientApp(App):
         if finished:
             self.active_nation = self.nation_selection_page.nation
             print(f"Nation Selection finished successfully (I'm {self.active_nation})")
-
             self.screen_manager.current = "CivMap"
-
             snap_map = SnapMap(self.civ_map_page.ms)
 
-            # spotter = Spotter(size_hint=snap_map.size_to_hint((60, 60)))
-            # self.civ_map_page.add_spotter(spotter)
-
-            print('Added AST')
             fl = self.civ_map_page.fl
-            print('Adding nations')
             for n in self.nation_selection_page.get_selected_nations():
-                print(n)
-                print(fl)
-                print(snap_map)
                 print('Calling Nation()')
                 self.civ_map_page.nations.append(Nation(n, fl, snap_map))
 
             for n in self.civ_map_page.nations:
                 n.show_or_hide_stock(self.active_nation)
+                print(n.get_dict())
 
 
 if __name__ == "__main__":

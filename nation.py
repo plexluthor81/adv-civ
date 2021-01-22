@@ -1,5 +1,5 @@
 from tokens import AstToken, UnitToken, CityToken, BoatToken
-
+from game import CivCards
 
 default_colors = {'Africa': [186, 96, 41], 'Italy': [252, 0, 0], 'Illyria': [245, 239, 7],
                   'Thrace': [67, 177, 30], 'Crete': [102, 201, 29], 'Asia': [243, 146, 51],
@@ -21,22 +21,8 @@ default_tracks = {'Africa': 9, 'Italy': 8, 'Illyria': 7, 'Thrace': 6, 'Crete': 5
 
 
 class Nation:
-    num_units = 55
-    name = 'Unnamed'
-    color = [0, 0, 0]
-    track = 0
-    fl = None
-    snap_map = None
-    units_in_location = {}
-    boats_in_location = {}
-    cities_in_location = {}
-    unit_icon = 'default_unit_icon.png'
-    boat_icon = 'default_boat_icon.png'
-
     def __init__(self, name, fl, snap_map, num_units=55, track=-1, color=[0, 0, 0], icons=[], **kwargs):
         print(name)
-        print(fl)
-        print(snap_map)
         self.name = name
         if color == [0, 0, 0] and name in default_colors.keys():
             self.color = default_colors[name]
@@ -46,9 +32,11 @@ class Nation:
             self.track = default_tracks[name]
         else:
             self.track = track
+        self.ast_order = 10 - self.track
         self.fl = fl
         self.snap_map = snap_map
         self.num_units = num_units
+        self.census = 0
         if icons == [] and name in default_icons.keys():
             self.unit_icon = default_icons[name][0]
             self.city_icon = default_icons[name][1]
@@ -58,13 +46,15 @@ class Nation:
             self.city_icon = icons[1]
             self.boat_icon = icons[2]
 
+        self.units_in_location = {}
+        self.boats_in_location = {}
+        self.cities_in_location = {}
         for location in [t.name for t in snap_map.territories]:
             self.units_in_location[location] = 0
             self.boats_in_location[location] = 0
             self.cities_in_location[location] = 0
 
-        
-        self.ast_token = AstToken(ast=0, track=self.track, token_color=self.color, size_hint=(50 / 4058.0, 50 / 2910.0))
+        self.ast_token = AstToken(nation=self, ast=0, track=self.track, token_color=self.color, size_hint=(48 / 4058.0, 48 / 2910.0))
         fl.add_widget(self.ast_token)
 
         self.tokens = []
@@ -95,6 +85,9 @@ class Nation:
             self.tokens.append(boat)
 
         self.label_tokens()
+
+        self.trade_cards = []
+        self.civ_cards = CivCards()
         print(f'Done with {self.name}')
 
     def update_locations(self, *args):
@@ -146,3 +139,10 @@ class Nation:
             for token in self.tokens:
                 if token.territory.name in ['UnitStock', 'CityStock', 'BoatStock', 'Treasury']:
                     token.hide()
+
+    def get_dict(self):
+        nation_dict = {'name': self.name, 'ast': self.ast_token.ast, 'ast_order': self.ast_order, 'census': self.census,
+                       'tokens': list(map(lambda t: t.territory.name, self.tokens)),
+                       'trade_cards': list(map(lambda t: t.name, self.trade_cards)),
+                       'civ_cards': self.civ_cards.get_list()}
+        return nation_dict

@@ -11,6 +11,7 @@ from kivy.uix.screenmanager import Screen, ScreenManager
 from kivy.properties import StringProperty
 from kivy.uix.button import Button
 
+
 class MapScatter(Scatter):
     def on_transform_with_touch(self, touch):
         if self.pos[0] > 0:
@@ -81,13 +82,12 @@ class StockLabel(Label):
 
 class StockPanel(FloatLayout):
     nation = StringProperty('Nation')
-    lab = None
-    lrect = None
-    ccc_btn = None
 
     def __init__(self, **kwargs):
         super(StockPanel, self).__init__(**kwargs)
         self.lab = Label(color=(0, 0, 0, 1), text=self.nation)
+        self.lrect = None
+        self.nation = 'Nation'
         self.bind(nation=self.lab.setter('text'))
         self.add_widget(self.lab)
         self.lab.bind(size=self.draw_lrect)
@@ -109,8 +109,6 @@ class StockPanel(FloatLayout):
 
 
 class CivCardCreditsPanel(FloatLayout):
-    st_btn = None
-
     def __init__(self, **kwargs):
         super(CivCardCreditsPanel, self).__init__(**kwargs)
         self.add_widget(Image(source='civ_credits.png', pos_hint={'x': 0, 'y': 0}, size_hint=(1, 1)))
@@ -119,17 +117,10 @@ class CivCardCreditsPanel(FloatLayout):
 
 
 class CivMapScreen(BoxLayout):
-    nations = []
-    ms = None
-    im = None
-    fl = None
-    sm = None
-    st = None
-    sp = None
-
     def __init__(self, **kwargs):
         super(CivMapScreen, self).__init__(**kwargs)
         self.pos = (0, 0)
+        self.nations = []
         self.ms = MapScatter(pos_hint={'x': 0, 'y': 0})
         self.add_widget(self.ms)
         self.im = Image(source='civ_board.png', allow_stretch=True, keep_ratio=False, opacity=1.0)

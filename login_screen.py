@@ -18,6 +18,8 @@ class LoginScreen(FloatLayout):
     def __init__(self, **kwargs):
         super(LoginScreen, self).__init__(**kwargs)
         self.connected = False
+        self.url = 'http://localhost:5000'
+        self.name = ''
         self.add_widget(Label(text="Log In", font_size=25, size_hint=(.5, .15), pos_hint={'center_x': .5, 'center_y': .9}))
 
         url_label = Label(text="URL", halign='right', valign='center', size_hint=(.2, .2), pos_hint={'right': .25, 'center_y': .7})
@@ -57,7 +59,9 @@ class LoginScreen(FloatLayout):
 
 
 class LoginApp(App):
-    page = None
+    def __init__(self, **kwargs):
+        super(LoginApp, self).__init__(**kwargs)
+        self.page = None
 
     def build(self):
         self.page = LoginScreen()
