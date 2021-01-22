@@ -5,9 +5,9 @@ from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.image import Image
 from kivy.uix.label import Label
 from tokens import AstToken
-from kivy.graphics import Color, Rectangle
+from kivy.graphics import Color, Rectangle, Line
 from kivy.clock import Clock
-
+from kivy.uix.screenmanager import Screen, ScreenManager
 
 class MapScatter(Scatter):
     def on_transform_with_touch(self, touch):
@@ -39,6 +39,22 @@ class MapScatter(Scatter):
         return super(MapScatter, self).on_touch_down(touch)
 
 
+class StockBox(Label):
+    def __init__(self, **kwargs):
+        super(StockBox, self).__init__(**kwargs)
+        self.bind(size=self.setter('text_size'))
+        self.font_size = 12
+        self.halign = 'center'
+        self.markup = True
+        self.valign = 'top'
+        self.color = (0,0,0,1)
+        self.bind(size=self.draw_rect)
+
+    def draw_rect(self, *args):
+        with self.canvas:
+            Color(.1, .1, .1, 1)
+            Line(width=1.5, rectangle=[self.x, self,y, self.width, self.height])
+
 class CivMapScreen(BoxLayout):
     nations = []
     ms = None
@@ -57,6 +73,87 @@ class CivMapScreen(BoxLayout):
         self.im.add_widget(self.fl)
         self.bind(size=self.im.setter('size'))
 
+        self.sm = ScreenManager()
+        self.fl.add_widget(self.sm)
+
+        self.fl.add_widget(StockBox())
+
+'''
+<StockBox@Label>:
+    text_size: self.size
+    font_size: 12
+    halign: 'center'
+    markup: True
+    valign: 'top'
+    color: (0,0,0)
+    canvas:
+        Color:
+            rgba: .1, .1, .1, 1
+        Line:
+            width: 1.5
+            rectangle: (self.x, self.y, self.width, self.height)
+
+<StockLabel@Label>:
+    text_size: self.size
+    font_size: 10
+    halign: 'left'
+    markup: True
+    valign: 'center'
+    color: (0,0,0)
+    size_hint: .1, .1
+
+ScreenManager:
+                    id: sm
+                    pos_hint: {'x': 1660/4058.0, 'y': 3/2910.0}
+                    size_hint: (3367-1660)/4058.0,(2907-2105)/2910.0
+                    Screen:
+                        name: 'Stock and Treasury'
+                        FloatLayout:
+                            Label:
+                                color: (0, 0, 0, 1)
+                                text: app.active_nation
+                                canvas.before:
+                                    Color:
+                                        rgba: app.rgba_tuple((248, 212, 128), 1)
+                                    Rectangle:
+                                        pos: (0, 0)
+                                        size: sm.size
+                            Button:
+                                size_hint: .19, .14
+                                pos_hint: {'x': .04, 'top': .18}
+                                on_press: app.change_screen("Civ Card Credits")
+                                text: 'Civ Card Credits'
+                                font_size: 10
+                            StockBox:
+                                text: "Stock"
+                                size_hint: .17, .44
+                                pos_hint: {'x':.05,'top':.95}
+                            StockLabel:
+                                text: "Units"
+                                pos_hint: {'x': .12, 'y': .75}
+                            StockLabel:
+                                text: "Cities"
+                                pos_hint: {'x': .12, 'y': .65}
+                            StockLabel:
+                                text: "Ships"
+                                pos_hint: {'x': .12, 'y': .55}
+                            StockBox:
+                                text: "Treasury"
+                                size_hint: .17, .24
+                                pos_hint: {'x':.05,'top':.45}
+                    Screen:
+                        name: "Civ Card Credits"
+                        FloatLayout:
+                            size: sm.size
+                            Image:
+                                size_hint: 1,1
+                                source: 'civ_credits.png'
+                            Button:
+                                size_hint: .3, .3
+                                pos_hint: {'center_x': .5, 'center_y': .5}
+                                on_press: app.change_screen("Stock and Treasury")
+                                text: 'Stock and Treasury'
+'''
     def add_spotter(self, spotter):
         print(f'Adding {spotter} to {self.fl}')
         self.fl.add_widget(spotter)
