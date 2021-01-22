@@ -63,6 +63,7 @@ class Nation:
             self.boats_in_location[location] = 0
             self.cities_in_location[location] = 0
 
+        
         self.ast_token = AstToken(ast=0, track=self.track, token_color=self.color, size_hint=(50 / 4058.0, 50 / 2910.0))
         fl.add_widget(self.ast_token)
 
