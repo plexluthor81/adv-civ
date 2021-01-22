@@ -146,3 +146,20 @@ class Nation:
                        'trade_cards': list(map(lambda t: t.name, self.trade_cards)),
                        'civ_cards': self.civ_cards.get_list()}
         return nation_dict
+
+    def update(self, nation_dict):
+        print(f"Updating {self.name} with {nation_dict}")
+        if not nation_dict:
+            return
+        if nation_dict['name'] != self.name:
+            print(f"Can't update {self.name} using a dict for {nation_dict['name']}")
+            return
+        self.ast_token.ast = nation_dict['ast']
+        self.census = nation_dict['census']
+        for i in range(len(self.tokens)):
+            if self.tokens[i].territory.name != nation_dict['tokens'][i]:
+                self.tokens[i].goto_territory(nation_dict['tokens'][i])
+        self.trade_cards = nation_dict['trade_cards']
+        for c in nation_dict['civ_cards']:
+            self.civ_cards[c]['acquired'] = True
+        self.label_tokens()

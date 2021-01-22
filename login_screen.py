@@ -42,7 +42,7 @@ class LoginScreen(FloatLayout):
 
     def connect(self, instance):
         print(f"Connecting {self.name} to {self.url}")
-        req = UrlRequest(url=f"{self.url}/new_user", on_success=self.handle_response,
+        req = UrlRequest(url=f"{self.url}/join", on_success=self.handle_response,
                          on_failure=self.show_error_msg, on_error=self.show_error_msg,
                          req_body=json.dumps({'player_name': self.name}),
                          req_headers={'Content-Type': 'application/json'},

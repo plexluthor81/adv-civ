@@ -7,6 +7,9 @@ from kivy.uix.widget import Widget
 from kivy.uix.button import Button
 from kivy.properties import NumericProperty, StringProperty, ObjectProperty
 from kivy.uix.screenmanager import Screen, ScreenManager
+from kivy.clock import Clock
+from kivy.network.urlrequest import UrlRequest
+from flask import json
 
 from contextlib import suppress
 
@@ -85,6 +88,41 @@ class AdvCivClientApp(App):
             for n in self.civ_map_page.nations:
                 n.show_or_hide_stock(self.active_nation)
                 print(n.get_dict())
+
+            self.update_board(0)
+            Clock.schedule_interval(self.update_board, 1)
+
+    def update_board(self, dt):
+        n = [n for n in self.civ_map_page.nations if n.name == self.active_nation][0]
+        url = self.login_page.url
+        if dt == 0:
+            body = None
+        else:
+            body = json.dumps(n.get_dict())
+        req = UrlRequest(url=f"{url}/civ_board", on_success=self.handle_update,
+                         on_failure=self.show_error_msg, on_error=self.show_error_msg,
+                         req_body=body,
+                         req_headers={'Content-Type': 'application/json'},
+                         timeout=None, decode=True, debug=False, file_path=None, ca_file=None,
+                         verify=False)
+
+    def handle_update(self, req, res):
+        res_list = json.loads(res)
+        for n in self.civ_map_page.nations:
+            if n.name not in res_list:
+                print(f"{n.name} not listed on server: {res_list.keys()}")
+                return
+            if n.name == self.active_nation:
+                if res_list[n.name] == n.get_dict():
+                    pass
+                else:
+                    print(f"Client {n.name} doesn't match server!")
+            n.update(res_list[n.name])
+
+    @staticmethod
+    def show_error_msg(request, error):
+        print('Error')
+        print(error)
 
 
 if __name__ == "__main__":
