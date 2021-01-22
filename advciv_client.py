@@ -52,6 +52,7 @@ class AdvCivClientApp(App):
         self.nation_selection_page.server_url = self.login_page.url
         self.login_page.bind(name=self.nation_selection_page.setter('player_name'))
         self.login_page.bind(url=self.nation_selection_page.setter('server_url'))
+        self.nation_selection_page.bind(nation=self.setter('active_nation'))
 
         self.civ_map_page = CivMapScreen(pos_hint={'x': 0, 'y': 0}, size_hint=(1, 1))
         screen = Screen(name="CivMap", pos_hint={'x': 0, 'y': 0}, size_hint=(1, 1))
@@ -70,8 +71,9 @@ class AdvCivClientApp(App):
 
     def handle_finish(self, instance, finished):
         if finished:
-            print('Nation Selection finished successfully')
             self.active_nation = self.nation_selection_page.nation
+            print(f"Nation Selection finished successfully (I'm {self.active_nation})")
+
             self.screen_manager.current = "CivMap"
 
             snap_map = SnapMap(self.civ_map_page.ms)
@@ -79,17 +81,18 @@ class AdvCivClientApp(App):
             # spotter = Spotter(size_hint=snap_map.size_to_hint((60, 60)))
             # self.civ_map_page.add_spotter(spotter)
 
-            ast_token = AstToken(ast=0, track=9, color=[186, 96, 41], size_hint=(60/4058.0, 60/2910.0))
-            self.civ_map_page.add_spotter(ast_token)
+            print('Added AST')
+            fl = self.civ_map_page.fl
+            print('Adding nations')
+            for n in self.nation_selection_page.get_selected_nations():
+                print(n)
+                print(fl)
+                print(snap_map)
+                print('Calling Nation()')
+                self.civ_map_page.nations.append(Nation(n, fl, snap_map))
 
-            # fl = self.civ_map_page.ids['fl']
-
-            # for n in self.nation_selection_page.get_selected_nations():
-            #     print(n)
-            #     print(fl)
-            #     print(snap_map)
-            #     print('Calling Nation()')
-            #     self.civ_map_page.nations.append(Nation(n, fl, snap_map))
+            for n in self.civ_map_page.nations:
+                n.show_or_hide_stock(self.active_nation)
 
 
 if __name__ == "__main__":

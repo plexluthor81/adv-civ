@@ -192,7 +192,7 @@ class NationSelectionScreen(FloatLayout):
         self.add_widget(self.prs[num])
 
     def get_selected_nations(self):
-        selected_nations = [self.pr.ndd.ids['btn'].text for pr in prs]
+        selected_nations = [pr.ndd.ids['btn'].text for pr in self.prs]
         while 'Open' in selected_nations:
             selected_nations.remove('Open')
         return selected_nations
@@ -237,6 +237,7 @@ class NationSelectionScreen(FloatLayout):
                 self.prs[i].ndd.ids['btn'].disabled = True
             else:
                 self.prs[i].ndd.ids['btn'].disabled = False
+        self.nation = res_list[self.player_num-1]['nation']
 
         nations = [p['nation'] for p in res_list]
         if 'Not Selected' not in nations:

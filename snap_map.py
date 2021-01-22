@@ -316,9 +316,9 @@ class SnapMap:
     def place_token_in_territory(self, token, territory):
         if isinstance(territory, str):
             territory = [t for t in self.territories if t.name == territory][0]
-            # if not isinstance(territory, Territory):
-            #     raise Exception(f"territory must be a Territory object, the a Territory object's name. {territory}")
-            # if isinstance(token, (UnitToken, CityToken, BoatToken)):
+        if not isinstance(territory, Territory):
+            raise Exception(f"territory must be a Territory object, the a Territory object's name. {territory}")
+        if isinstance(token, (UnitToken, CityToken, BoatToken)):
             b, map_pos = territory.try_adding_token(token)
             if not b:
                 if not token.territory:

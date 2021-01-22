@@ -2,33 +2,7 @@ from kivy.uix.behaviors import DragBehavior
 from kivy.uix.label import Label
 from kivy.properties import NumericProperty, ListProperty, StringProperty, ObjectProperty
 from kivy.lang import Builder
-from kivy.graphics import Color, Rectangle
-
-Token_kv = '''
-<AstTokenWidget>:
-    canvas:
-        Color:
-            rgba: tuple([x/255 for x in self.color] + [.99])
-        Rectangle:
-            pos: self.pos
-            size: self.size
-
-<Token>:
-    active_nation: app.active_nation
-    # Define the properties for the DragLabel
-    drag_rectangle: self.x, self.y, self.width, self.height
-    drag_timeout: 10000000
-    drag_distance: 0
-    color: (0,0,0)
-
-<Spotter>:
-    canvas.before:
-        Color:
-            rgba: (.1,.1,.1,.9)
-        Rectangle:
-            pos: self.pos
-            size: self.size
-'''
+from kivy.graphics import Color, Rectangle, Ellipse
 
 
 class Token(DragBehavior, Label):
@@ -37,16 +11,51 @@ class Token(DragBehavior, Label):
     hidden = False
     moving = False
     territory = ObjectProperty(None, allownone=True)
+    color = ListProperty([0, 0, 0, 1])
+    rect = None
 
-    def __init__(self, nation=None, hidden=False, territory=None, moving=False, **kwargs):
-        Builder.load_string(Token_kv)
+    def __init__(self, nation=None, hidden=False, territory=None, moving=False, token_color=[255, 255, 255], icon='', **kwargs):
         super(Token, self).__init__(**kwargs)
         self.nation = nation
         self.hidden = hidden
         self.moving = moving
+        self.drag_height = self.height
+        self.bind(height=self.setter('drag_rect_height'))
+        self.drag_width = self.width
+        self.bind(width=self.setter('drag_rect_width'))
+        self.drag_x = self.x
+        self.bind(x=self.setter('drag_rect_x'))
+        self.drag_y = self.y
+        self.bind(y=self.setter('drag_rect_y'))
+        self.drag_timeout = 10000000
+        self.drag_distance = 0
+        self.draw_rect(token_color, icon)
+
         self.territory = None
         if territory:
             self.goto_territory(territory)
+
+    def draw_rect(self, token_color, icon):
+        print('Token draw_rect')
+        canvas_color = [x / 255 for x in token_color] + [.99]
+        print(canvas_color)
+        if not icon:
+            with self.canvas.before:
+                Color(*canvas_color)
+                # rgba: tuple([x / 255 for x in self.color] + [.99])
+                self.rect = Rectangle(pos=self.pos, size=self.size)
+        else:
+            with self.canvas.before:
+                Color(*canvas_color)
+                # rgba: tuple([x / 255 for x in self.color] + [.99])
+                self.rect = Rectangle(pos=self.pos, size=self.size, source=icon)
+        self.bind(pos=self.update_rect)
+        self.bind(size=self.update_rect)
+
+    def update_rect(self, *args):
+        if self.rect:
+            self.rect.pos = self.pos
+            self.rect.size = self.size
 
     def on_touch_down(self, touch):
         if self.collide_point(*touch.pos):
@@ -116,6 +125,19 @@ class CityToken(Token):
             self.nation.label_tokens()
         return super(CityToken, self).on_touch_up(touch)
 
+    def draw_rect(self, token_color, icon):
+        print('City draw_rect')
+        canvas_color = [x / 255 for x in token_color] + [.99]
+        print(canvas_color)
+        if not icon:
+            icon = 'default_icon.png'
+        with self.canvas.before:
+            Color(*canvas_color)
+            # rgba: tuple([x / 255 for x in self.color] + [.99])
+            self.rect = Ellipse(pos=self.pos, size=self.size, source=icon)
+        self.bind(pos=self.update_rect)
+        self.bind(size=self.update_rect)
+
 
 class BoatToken(Token):
     def on_touch_up(self, touch):
@@ -139,32 +161,16 @@ class Spotter(Token):
         super(Spotter, self).on_touch_up(touch)
 
 
-class AstToken(Label):
+class AstToken(Token):
     ast = NumericProperty(0)
     track = NumericProperty(0)
-    color = ListProperty([0, 0, 0])
     target_size = 48
     rect = None
 
-    def __init__(self, ast=0, track=0, color=[.5, .5, .5], **kwargs):
-        self.text = 'A'
+    def __init__(self, ast=0, track=0, **kwargs):
         super(AstToken, self).__init__(**kwargs)
         self.ast = ast
         self.track = track
-        self.color = color
-        # Builder.load_string(Token_kv)
-        canvas_color = [x / 255 for x in self.color] + [.99]
-        with self.canvas.before:
-            Color(*canvas_color)
-            # rgba: tuple([x / 255 for x in self.color] + [.99])
-            self.rect = Rectangle(pos=self.pos, size=self.size)
-        self.bind(pos=self.update_rect)
-        self.bind(size=self.update_rect)
-
-    def update_rect(self, *args):
-        if self.rect:
-            self.rect.pos = self.pos
-            self.rect.size = self.size
 
     def refresh_pos(self):
         print(f'AST refresh_pos {self.color} {tuple([x / 255.0 for x in self.color] + [.99])}')

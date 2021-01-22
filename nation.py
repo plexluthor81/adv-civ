@@ -63,36 +63,38 @@ class Nation:
             self.boats_in_location[location] = 0
             self.cities_in_location[location] = 0
 
-        self.ast_token = AstToken(ast=0, track=self.track, color=self.color)
-        print('adding ast_token to fl')
-        print(fl)
-        print(self.ast_token)
+        self.ast_token = AstToken(ast=0, track=self.track, token_color=self.color, size_hint=(50 / 4058.0, 50 / 2910.0))
         fl.add_widget(self.ast_token)
 
         self.tokens = []
 
-        # for i in range(num_units):
-        #     token = UnitToken(nation=self, hidden=True, territory='HiddenUnitStock',
-        #                       size_hint=snap_map.size_to_hint((60, 60)))
-        #     self.fl.add_widget(token)
-        #     self.units_in_location['HiddenUnitStock'] = self.units_in_location['HiddenUnitStock'] + 1
-        #     self.tokens.append(token)
-        #
-        # for i in range(9):
-        #     city = CityToken(nation=self, hidden=True, territory='HiddenCityStock',
-        #                      size_hint=snap_map.size_to_hint((60, 60)))
-        #     self.fl.add_widget(city)
-        #     self.units_in_location['HiddenCityStock'] += 1
-        #     self.tokens.append(city)
-        #
-        # for i in range(4):
-        #     boat = BoatToken(nation=self, hidden=True, territory='HiddenBoatStock',
-        #                      size_hint=snap_map.size_to_hint((93, 60)))
-        #     self.fl.add_widget(boat)
-        #     self.units_in_location['HiddenBoatStock'] += 1
-        #     self.tokens.append(boat)
-        #
-        # self.label_tokens()
+        for i in range(num_units):
+            token = UnitToken(nation=self, hidden=True, territory='HiddenUnitStock',
+                              size_hint=snap_map.size_to_hint((60, 60)),
+                              icon=default_icons[self.name][0])
+            self.fl.add_widget(token)
+            self.units_in_location['HiddenUnitStock'] = self.units_in_location['HiddenUnitStock'] + 1
+            self.tokens.append(token)
+
+        print('Done with Units, starting Cities')
+        for i in range(9):
+            city = CityToken(nation=self, hidden=True, territory='HiddenCityStock',
+                             size_hint=snap_map.size_to_hint((60, 60)),
+                             icon=default_icons[self.name][1])
+            self.fl.add_widget(city)
+            self.units_in_location['HiddenCityStock'] += 1
+            self.tokens.append(city)
+
+        for i in range(4):
+            boat = BoatToken(nation=self, hidden=True, territory='HiddenBoatStock',
+                             size_hint=snap_map.size_to_hint((93, 60)),
+                             icon=default_icons[self.name][2])
+            self.fl.add_widget(boat)
+            self.units_in_location['HiddenBoatStock'] += 1
+            self.tokens.append(boat)
+
+        self.label_tokens()
+        print(f'Done with {self.name}')
 
     def update_locations(self, *args):
         print(f'Should be updating locations for {self.name}')
@@ -133,8 +135,8 @@ class Nation:
                 token.goto_territory('Stock')
         self.label_tokens()
 
-    def show_or_hide_stock(self):
-        active_nation = App.get_running_app().active_nation
+    def show_or_hide_stock(self, active_nation):
+        print(f"{self.name} showing or hiding based on {active_nation}")
         if active_nation == self.name:
             for token in self.tokens:
                 if token.territory.name in ['HiddenUnitStock', 'HiddenCityStock', 'HiddenBoatStock', 'HiddenTreasury']:
