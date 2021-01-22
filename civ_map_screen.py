@@ -8,6 +8,8 @@ from tokens import AstToken
 from kivy.graphics import Color, Rectangle, Line
 from kivy.clock import Clock
 from kivy.uix.screenmanager import Screen, ScreenManager
+from kivy.properties import StringProperty
+from kivy.uix.button import Button
 
 class MapScatter(Scatter):
     def on_transform_with_touch(self, touch):
@@ -41,25 +43,89 @@ class MapScatter(Scatter):
 
 class StockBox(Label):
     def __init__(self, **kwargs):
+        if 'text' in kwargs:
+            print(kwargs['text'])
         super(StockBox, self).__init__(**kwargs)
+        self.bind(size=self.setter('text_size'))
         self.bind(size=self.setter('text_size'))
         self.font_size = 12
         self.halign = 'center'
         self.markup = True
         self.valign = 'top'
-        self.color = (0,0,0,1)
+        self.color = (0, 0, 0, 1)
         self.bind(size=self.draw_rect)
+        self.bind(pos=self.draw_rect)
+        print(self.text)
+        print(self.font_size)
+        print(self.color)
+        print(self.pos, self.size)
 
     def draw_rect(self, *args):
-        with self.canvas:
+        self.canvas.before.clear()
+        with self.canvas.before:
             Color(.1, .1, .1, 1)
-            Line(width=1.5, rectangle=[self.x, self,y, self.width, self.height])
+            Line(width=1.5, rectangle=[self.x, self.y, self.width, self.height])
+
+
+class StockLabel(Label):
+    def __init__(self, **kwargs):
+        super(StockLabel, self).__init__(**kwargs)
+        self.bind(size=self.setter('text_size'))
+        self.font_size = 10
+        self.halign = 'left'
+        self.markup = True
+        self.valign = 'center'
+        self.color = (0, 0, 0, 1)
+        self.size_hint = (.1, .1)
+
+
+class StockPanel(FloatLayout):
+    nation = StringProperty('Nation')
+    lab = None
+    lrect = None
+    ccc_btn = None
+
+    def __init__(self, **kwargs):
+        super(StockPanel, self).__init__(**kwargs)
+        self.lab = Label(color=(0, 0, 0, 1), text=self.nation)
+        self.bind(nation=self.lab.setter('text'))
+        self.add_widget(self.lab)
+        self.lab.bind(size=self.draw_lrect)
+        self.ccc_btn = Button(text='Civ Card Credits', font_size=10, size_hint=(.19, .14), pos_hint={'x': 0.04, 'top': 0.18})
+        self.add_widget(self.ccc_btn)
+        print('Adding Stock StockBox')
+        self.add_widget(StockBox(text="Stock", size_hint=(0.17, 0.44), pos_hint={'x': 0.05, 'top': 0.95}))
+        print('Done Adding Stock StockBox')
+        self.add_widget(StockLabel(text="Units", pos_hint={'x': 0.12, 'y': 0.75}))
+        self.add_widget(StockLabel(text="Cities", pos_hint={'x': 0.12, 'y': 0.65}))
+        self.add_widget(StockLabel(text="Ships", pos_hint={'x': 0.12, 'y': 0.55}))
+        self.add_widget(StockBox(text="Treasury", size_hint=(0.17, 0.24), pos_hint={'x': 0.05, 'top': 0.45}))
+
+    def draw_lrect(self, *args):
+        self.lab.canvas.before.clear()
+        with self.lab.canvas.before:
+            Color(248/255, 212/255, 128/255, 1)
+            self.lrect = Rectangle(pos=(0, 0), size=self.lab.size)
+
+
+class CivCardCreditsPanel(FloatLayout):
+    st_btn = None
+
+    def __init__(self, **kwargs):
+        super(CivCardCreditsPanel, self).__init__(**kwargs)
+        self.add_widget(Image(source='civ_credits.png', pos_hint={'x': 0, 'y': 0}, size_hint=(1, 1)))
+        self.st_btn = Button(size_hint=(0.3, 0.3), pos_hint={'center_x': .5, 'center_y': .5}, text="Stock and Treasury")
+        self.add_widget(self.st_btn)
+
 
 class CivMapScreen(BoxLayout):
     nations = []
     ms = None
     im = None
     fl = None
+    sm = None
+    st = None
+    sp = None
 
     def __init__(self, **kwargs):
         super(CivMapScreen, self).__init__(**kwargs)
@@ -73,87 +139,30 @@ class CivMapScreen(BoxLayout):
         self.im.add_widget(self.fl)
         self.bind(size=self.im.setter('size'))
 
-        self.sm = ScreenManager()
+        self.sm = ScreenManager(pos_hint={'x': 1660/4058.0, 'y': 3/2910.0}, size_hint=((3367-1660)/4058.0, (2907-2105)/2910.0))
         self.fl.add_widget(self.sm)
 
-        self.fl.add_widget(StockBox())
+        self.st = StockPanel(pos_hint={'x': 0, 'y': 0}, size_hint=(1, 1))
+        self.st.ccc_btn.bind(on_press=self.change_screen)
+        self.sm.bind(size=self.st.lab.setter('size'))
+        screen = Screen(name="Stock and Treasury", pos_hint={'x': 0, 'y': 0}, size_hint=(1, 1))
+        screen.add_widget(self.st)
+        self.sm.add_widget(screen)
 
-'''
-<StockBox@Label>:
-    text_size: self.size
-    font_size: 12
-    halign: 'center'
-    markup: True
-    valign: 'top'
-    color: (0,0,0)
-    canvas:
-        Color:
-            rgba: .1, .1, .1, 1
-        Line:
-            width: 1.5
-            rectangle: (self.x, self.y, self.width, self.height)
+        self.ccc = CivCardCreditsPanel(pos_hint={'x': 0, 'y': 0}, size_hint=(1, 1))
+        self.ccc.st_btn.bind(on_press=self.change_screen)
+        screen = Screen(name='Civ Card Credits', pos_hint={'x': 0, 'y': 0}, size_hint=(1, 1))
+        screen.add_widget(self.ccc)
+        self.sm.add_widget(screen)
 
-<StockLabel@Label>:
-    text_size: self.size
-    font_size: 10
-    halign: 'left'
-    markup: True
-    valign: 'center'
-    color: (0,0,0)
-    size_hint: .1, .1
+    def change_screen(self, instance, *args):
+        if instance == self.st.ccc_btn:
+            self.sm.current = 'Civ Card Credits'
+        elif instance == self.ccc.st_btn:
+            self.sm.current = 'Stock and Treasury'
+        for obj in [self, self.sm, self.st, self.st.lab]:
+            print(obj, obj.pos, obj.pos_hint, obj.size, obj.size_hint)
 
-ScreenManager:
-                    id: sm
-                    pos_hint: {'x': 1660/4058.0, 'y': 3/2910.0}
-                    size_hint: (3367-1660)/4058.0,(2907-2105)/2910.0
-                    Screen:
-                        name: 'Stock and Treasury'
-                        FloatLayout:
-                            Label:
-                                color: (0, 0, 0, 1)
-                                text: app.active_nation
-                                canvas.before:
-                                    Color:
-                                        rgba: app.rgba_tuple((248, 212, 128), 1)
-                                    Rectangle:
-                                        pos: (0, 0)
-                                        size: sm.size
-                            Button:
-                                size_hint: .19, .14
-                                pos_hint: {'x': .04, 'top': .18}
-                                on_press: app.change_screen("Civ Card Credits")
-                                text: 'Civ Card Credits'
-                                font_size: 10
-                            StockBox:
-                                text: "Stock"
-                                size_hint: .17, .44
-                                pos_hint: {'x':.05,'top':.95}
-                            StockLabel:
-                                text: "Units"
-                                pos_hint: {'x': .12, 'y': .75}
-                            StockLabel:
-                                text: "Cities"
-                                pos_hint: {'x': .12, 'y': .65}
-                            StockLabel:
-                                text: "Ships"
-                                pos_hint: {'x': .12, 'y': .55}
-                            StockBox:
-                                text: "Treasury"
-                                size_hint: .17, .24
-                                pos_hint: {'x':.05,'top':.45}
-                    Screen:
-                        name: "Civ Card Credits"
-                        FloatLayout:
-                            size: sm.size
-                            Image:
-                                size_hint: 1,1
-                                source: 'civ_credits.png'
-                            Button:
-                                size_hint: .3, .3
-                                pos_hint: {'center_x': .5, 'center_y': .5}
-                                on_press: app.change_screen("Stock and Treasury")
-                                text: 'Stock and Treasury'
-'''
     def add_spotter(self, spotter):
         print(f'Adding {spotter} to {self.fl}')
         self.fl.add_widget(spotter)

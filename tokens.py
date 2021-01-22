@@ -36,9 +36,7 @@ class Token(DragBehavior, Label):
             self.goto_territory(territory)
 
     def draw_rect(self, token_color, icon):
-        print('Token draw_rect')
         canvas_color = [x / 255 for x in token_color] + [.99]
-        print(canvas_color)
         if not icon:
             with self.canvas.before:
                 Color(*canvas_color)
@@ -126,9 +124,7 @@ class CityToken(Token):
         return super(CityToken, self).on_touch_up(touch)
 
     def draw_rect(self, token_color, icon):
-        print('City draw_rect')
         canvas_color = [x / 255 for x in token_color] + [.99]
-        print(canvas_color)
         if not icon:
             icon = 'default_icon.png'
         with self.canvas.before:

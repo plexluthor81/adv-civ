@@ -58,6 +58,7 @@ class AdvCivClientApp(App):
         screen = Screen(name="CivMap", pos_hint={'x': 0, 'y': 0}, size_hint=(1, 1))
         screen.add_widget(self.civ_map_page)
         self.screen_manager.add_widget(screen)
+        self.bind(active_nation=self.civ_map_page.st.setter('nation'))
 
         return self.screen_manager
 
