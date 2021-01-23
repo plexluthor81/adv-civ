@@ -3,9 +3,9 @@ from random import randrange
 
 # Open a terminal run this with python3 drag_server.py
 
-players = [{'player_name': 'Closed', 'nation': 'Open'}, {'player_name': 'Closed', 'nation': 'Open'},
-           {'player_name': 'Closed', 'nation': 'Open'}, {'player_name': 'Closed', 'nation': 'Open'},
-           {'player_name': 'Closed', 'nation': 'Open'}, {'player_name': 'Closed', 'nation': 'Open'},
+players = [{'player_name': 'Open', 'nation': 'Not Selected'}, {'player_name': 'Open', 'nation': 'Not Selected'},
+           {'player_name': 'Open', 'nation': 'Not Selected'}, {'player_name': 'Open', 'nation': 'Not Selected'},
+           {'player_name': 'Open', 'nation': 'Not Selected'}, {'player_name': 'Open', 'nation': 'Not Selected'},
            {'player_name': 'Open', 'nation': 'Not Selected'}, {'player_name': 'Open', 'nation': 'Not Selected'}]
 
 valid_nations = ['Africa', 'Italy', 'Illyria', 'Thrace', 'Crete', 'Asia', 'Assyria', 'Babylon', 'Egypt']
@@ -58,7 +58,6 @@ def get_nation_selection():
                 or (nation_selection_dict['player_name'] not in player_names) \
                 or (nation_selection_dict['nation'] not in valid_nations):
             return json.dumps({"success": False}), 400
-        nations = [p['nation'] for p in players]
         if nation_selection_dict['nation'] in nations:
             return json.dumps({"success": False}), 409
         index = player_names.index(nation_selection_dict['player_name'])

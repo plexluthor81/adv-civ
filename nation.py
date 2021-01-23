@@ -6,10 +6,10 @@ default_colors = {'Africa': [186, 96, 41], 'Italy': [252, 0, 0], 'Illyria': [245
                   'Assyria': [61, 185, 209], 'Babylon': [145, 245, 244], 'Egypt': [212, 198, 137],
                   'Phoenecia': [155, 10, 180]}
 default_icons = {'Africa': ['africa_token_icon.png', 'africa_city_icon.png', 'africa_ship_icon.png'],
-                 'Italy': ['italy_token_icon.png', 'africa_city_icon.png', 'africa_ship_icon.png'],
+                 'Italy': ['italy_token_icon.png', 'italy_city_icon.png', 'italy_ship_icon.png'],
                  'Illyria': ['africa_token_icon.png', 'africa_city_icon.png', 'africa_ship_icon.png'],
                  'Thrace': ['africa_token_icon.png', 'africa_city_icon.png', 'africa_ship_icon.png'],
-                 'Crete': ['africa_token_icon.png', 'crete_city_icon.png', 'africa_ship_icon.png'],
+                 'Crete': ['crete_token_icon.png', 'crete_city_icon.png', 'crete_ship_icon.png'],
                  'Asia': ['africa_token_icon.png', 'africa_city_icon.png', 'africa_ship_icon.png'],
                  'Assyria': ['africa_token_icon.png', 'africa_city_icon.png', 'africa_ship_icon.png'],
                  'Babylon': ['africa_token_icon.png', 'africa_city_icon.png', 'africa_ship_icon.png'],
@@ -22,7 +22,6 @@ default_tracks = {'Africa': 9, 'Italy': 8, 'Illyria': 7, 'Thrace': 6, 'Crete': 5
 
 class Nation:
     def __init__(self, name, fl, snap_map, num_units=55, track=-1, color=[0, 0, 0], icons=[], **kwargs):
-        print(name)
         self.name = name
         if color == [0, 0, 0] and name in default_colors.keys():
             self.color = default_colors[name]
@@ -67,7 +66,6 @@ class Nation:
             self.units_in_location['HiddenUnitStock'] = self.units_in_location['HiddenUnitStock'] + 1
             self.tokens.append(token)
 
-        print('Done with Units, starting Cities')
         for i in range(9):
             city = CityToken(nation=self, hidden=True, territory='HiddenCityStock',
                              size_hint=snap_map.size_to_hint((60, 60)),
@@ -88,7 +86,6 @@ class Nation:
 
         self.trade_cards = []
         self.civ_cards = CivCards()
-        print(f'Done with {self.name}')
 
     def update_locations(self, *args):
         print(f'Should be updating locations for {self.name}')
@@ -148,7 +145,7 @@ class Nation:
         return nation_dict
 
     def update(self, nation_dict):
-        print(f"Updating {self.name} with {nation_dict}")
+        # print(f"Updating {self.name} with {nation_dict}")
         if not nation_dict:
             return
         if nation_dict['name'] != self.name:

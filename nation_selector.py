@@ -23,7 +23,7 @@ nation_dropdown_kv = '''
     __safe_id: [dropdown.__self__]
     Button:
         id: btn
-        text: 'Close'
+        text: ''
         size_hint: (.5, .8)
         pos_hint: {'x': 0, 'center_y': .5}
         on_release: root.release(self)
@@ -176,15 +176,28 @@ class NationSelectionScreen(FloatLayout):
         self.bind(names=self.update_pr_names)
         self.bind(nations=self.update_pr_nations)
 
-    def update_pr_names(self):
+    def update_pr_names(self, *args):
+        print(self.prs)
+        print(self.children)
+        print(self.prs[0].children)
         for i in range(8):
             if self.prs[i]:
                 self.prs[i].player_name = self.names[i]
 
-    def update_pr_nations(self):
+    def update_pr_nations(self, *args):
+        self.nation = self.nations[self.player_num-1]
         for i in range(8):
             if self.prs[i]:
-                self.prs[i].player_name = self.names[i]
+                if self.prs[i].player_name == 'Open' and self.nations[i] == 'Not Selected':
+                    self.prs[i].ndd.ids['btn'].text = 'Close'
+                elif self.prs[i].player_name == 'Closed' and self.nations[i] == 'Closed':
+                    self.prs[i].ndd.ids['btn'].text = 'Open'
+                else:
+                    self.prs[i].ndd.ids['btn'].text = self.nations[i]
+                if self.prs[i].ndd.ids['btn'].text not in ['Open', 'Close', self.nation]:
+                    self.prs[i].ndd.ids['btn'].disabled = True
+                else:
+                    self.prs[i].ndd.ids['btn'].disabled = False
 
     def add_player_row(self, num):
         self.prs[num] = PlayerRow(size_hint=(1, .1), pos_hint={'x': 0, 'y': 0.75-num/10.0})
@@ -219,35 +232,28 @@ class NationSelectionScreen(FloatLayout):
 
     def handle_update(self, req, res):
         res_list = json.loads(res)
-        print(res_list)
+        # print(res_list)
+        self.names = [p['player_name'] for p in res_list]
         if self.player_num == 0:
-            player_names = [p['player_name'] for p in res_list]
-            self.player_num = player_names.index(self.player_name) + 1
+            self.player_num = self.names.index(self.player_name) + 1
             print(f"I'm player #{self.player_num}")
-            mypr = self.prs[self.player_num-1]
-            print(mypr)
-            print(mypr.player_name)
-            mypr.player_name = self.player_name
-            print(mypr.player_name)
-            print(mypr.ndd)
-            print(mypr.ndd.ids)
-            mypr.ndd.ids['btn'].text = res_list[self.player_num-1]['nation']
-        for i in range(8):
-            if self.prs[i].player_name != res_list[i]['player_name']:
-                # print(f"updating #{i+1} name to {res_list[i]['player_name']}")
-                self.prs[i].player_name = res_list[i]['player_name']
-            if self.prs[i].ndd.ids['btn'].text != res_list[i]['nation']:
-                # print(f"updating #{i+1} nation to {res_list[i]['nation']}")
-                if self.prs[i].player_name == 'Open':
-                    self.prs[i].ndd.ids['btn'].text = 'Close'
-                elif self.prs[i].player_name == 'Closed':
-                    self.prs[i].ndd.ids['btn'].text = 'Open'
-                else:
-                    self.prs[i].ndd.ids['btn'].text = res_list[i]['nation']
-            if self.prs[i].player_name not in [self.player_name, 'Open', 'Closed']:
-                self.prs[i].ndd.ids['btn'].disabled = True
-            else:
-                self.prs[i].ndd.ids['btn'].disabled = False
+        self.nations = [p['nation'] for p in res_list]
+        # for i in range(8):
+        #     if self.prs[i].player_name != res_list[i]['player_name']:
+        #         # print(f"updating #{i+1} name to {res_list[i]['player_name']}")
+        #         self.prs[i].player_name = res_list[i]['player_name']
+        #     if self.prs[i].ndd.ids['btn'].text != res_list[i]['nation']:
+        #         # print(f"updating #{i+1} nation to {res_list[i]['nation']}")
+        #         if self.prs[i].player_name == 'Open':
+        #             self.prs[i].ndd.ids['btn'].text = 'Close'
+        #         elif self.prs[i].player_name == 'Closed':
+        #             self.prs[i].ndd.ids['btn'].text = 'Open'
+        #         else:
+        #             self.prs[i].ndd.ids['btn'].text = res_list[i]['nation']
+        #     if self.prs[i].player_name not in [self.player_name, 'Open', 'Closed']:
+        #         self.prs[i].ndd.ids['btn'].disabled = True
+        #     else:
+        #         self.prs[i].ndd.ids['btn'].disabled = False
         self.nation = res_list[self.player_num-1]['nation']
 
         nations = [p['nation'] for p in res_list]

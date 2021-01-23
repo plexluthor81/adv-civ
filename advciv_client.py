@@ -82,12 +82,10 @@ class AdvCivClientApp(App):
 
             fl = self.civ_map_page.fl
             for n in self.nation_selection_page.get_selected_nations():
-                print('Calling Nation()')
                 self.civ_map_page.nations.append(Nation(n, fl, snap_map))
 
             for n in self.civ_map_page.nations:
                 n.show_or_hide_stock(self.active_nation)
-                print(n.get_dict())
 
             self.update_board(0)
             Clock.schedule_interval(self.update_board, 1)
@@ -117,6 +115,24 @@ class AdvCivClientApp(App):
                     pass
                 else:
                     print(f"Client {n.name} doesn't match server!")
+            if res_list[n.name] == {}:
+                continue
+            else:
+                for i in range(len(res_list[n.name]['tokens'])):
+                    if n.name == self.active_nation:
+                        if res_list[n.name]['tokens'][i] == 'HiddenUnitStock':
+                            res_list[n.name]['tokens'][i] = 'UnitStock'
+                        if res_list[n.name]['tokens'][i] == 'HiddenCityStock':
+                            res_list[n.name]['tokens'][i] = 'CityStock'
+                        if res_list[n.name]['tokens'][i] == 'HiddenBoatStock':
+                            res_list[n.name]['tokens'][i] = 'BoatStock'
+                    else:
+                        if res_list[n.name]['tokens'][i] == 'UnitStock':
+                            res_list[n.name]['tokens'][i] = 'HiddenUnitStock'
+                        if res_list[n.name]['tokens'][i] == 'CityStock':
+                            res_list[n.name]['tokens'][i] = 'HiddenCityStock'
+                        if res_list[n.name]['tokens'][i] == 'BoatStock':
+                            res_list[n.name]['tokens'][i] = 'HiddenBoatStock'
             n.update(res_list[n.name])
 
     @staticmethod
